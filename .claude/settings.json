@@ -1,0 +1,24 @@
+{
+  "model": "sonnet",
+  "env": { "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet" },
+  "permissions": {
+    "deny": ["Read(./.env)", "Read(./.env.*)", "Read(./**/*.pem)", "Read(./**/secrets/**)"],
+    "ask": ["Bash(rm -rf:*)", "Bash(git push:*)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "node .claude/hooks/guard-write.mjs", "timeout": 30 }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "node .claude/hooks/post-write.mjs", "timeout": 300 }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "npx tsc --noEmit && npx vitest run --passWithNoTests", "timeout": 600 }] }
+    ],
+    "PreCompact": [
+      { "hooks": [{ "type": "prompt", "prompt": "Before compacting: restate the goal, any do-not-touch files, the task list, and the quality bar (TS strict, tokens are the single source of truth, nothing is done until tsc + vitest pass)." }] }
+    ]
+  }
+}

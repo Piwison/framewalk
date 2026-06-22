@@ -1,0 +1,93 @@
+/*
+ * FrameWalk design tokens -- the single source of truth.
+ * Direction: 間 Ma -- "清亮無負擔" (bright, unburdened, type-led).
+ * The chrome is washi-pale and quiet so the photos are the only colour; negative
+ * space and a single hairline structure the page; the film-amber accent is a small
+ * MARK (underline/dot/active chip), never a loud surface. No component may hardcode
+ * a colour, space, type, radius, or motion value.
+ */
+
+:root {
+  /* --- Color: light (washi paper) --- */
+  --paper: #fbfaf5;
+  --paper-raised: #ffffff;
+  --ink: #211f18;
+  --ink-soft: #5d594d;
+  --ink-faint: #777262;
+  --line: #e8e4d7;
+  --line-strong: #d7d2c3;
+  --accent: #c2702f;
+  --accent-soft: #f3e3d3;
+  --on-ink: #fbfaf5;
+  --danger: #9a3b2e;
+  --focus: #2f6f8f;
+
+  /* --- Type --- */
+  --font-serif: var(--font-prose), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-ui), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --text-xs: 0.8rem;
+  --text-sm: 0.9rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.563rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --leading-tight: 1.18;
+  --leading-normal: 1.5;
+  --leading-prose: 1.75;
+
+  --tracking-label: 0.14em;
+  --tracking-normal: 0;
+
+  /* --- Space: 4px base, generous vertical rhythm --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* --- Radius: restrained, editorial --- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  /* --- Motion (collapses under reduced-motion below) --- */
+  --motion-fast: 140ms;
+  --motion-base: 260ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* --- Elevation: Ma leans on hairlines + space, not shadow --- */
+  --shadow-card: 0 1px 1px rgba(33, 31, 24, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Warm dim -- calm, not a darkroom. */
+    --paper: #1b1a15;
+    --paper-raised: #232219;
+    --ink: #ece8dc;
+    --ink-soft: #b8b3a3;
+    --ink-faint: #9a9485;
+    --line: #322f27;
+    --line-strong: #423e33;
+    --accent: #d98a52;
+    --accent-soft: #3a2c1e;
+    --on-ink: #1b1a15;
+    --danger: #d98270;
+    --focus: #6db3d4;
+    --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+  }
+}
