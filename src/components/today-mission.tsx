@@ -27,6 +27,7 @@ export function TodayMission() {
   const [recent, setRecent] = useState<string[]>([]);
   const [mission, setMission] = useState<Mission | null>(null);
   const [ready, setReady] = useState(false);
+  const [nonce, setNonce] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -57,7 +58,8 @@ export function TodayMission() {
 
   function showAnother() {
     if (!mission) return;
-    const next = anotherMission(
+    const next = nonce + 1;
+    const picked = anotherMission(
       MISSIONS,
       {
         now: new Date(),
@@ -65,8 +67,10 @@ export function TodayMission() {
         recentIds: recent,
       },
       mission.id,
+      next,
     );
-    if (next) setMission(next);
+    setNonce(next);
+    if (picked) setMission(picked);
   }
 
   async function go() {
@@ -83,7 +87,7 @@ export function TodayMission() {
     <div>
       <div
         className="mb-8 flex flex-wrap gap-2"
-        role="group"
+        role="radiogroup"
         aria-label="Location"
       >
         {LOCATIONS.map((l) => (
@@ -98,41 +102,44 @@ export function TodayMission() {
         ))}
       </div>
 
-      <div aria-live="polite">
-        {!mission ? (
-          <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
-        ) : (
-          <article>
-            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
-              <span>{mission.difficulty}</span>
-              {mission.involvesPeople ? (
-                <>
-                  <span aria-hidden="true">·</span>
-                  <span>with people</span>
-                </>
-              ) : null}
-            </div>
+      {/* Dedicated, quiet status — announces only the mission title on change. */}
+      <p className="sr-only" aria-live="polite">
+        {mission ? `Today's mission: ${mission.title}` : "Finding a mission."}
+      </p>
 
-            <h2 className="mt-5 font-serif text-3xl leading-(--leading-tight) text-ink">
-              {mission.title}
-            </h2>
-            <div className="mt-5 h-0.5 w-7 bg-accent" />
+      {!mission ? (
+        <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
+      ) : (
+        <article>
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
+            <span>{mission.difficulty}</span>
+            {mission.involvesPeople ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>with people</span>
+              </>
+            ) : null}
+          </div>
 
-            <p className="mt-5 max-w-prose font-serif text-lg leading-(--leading-prose) text-ink-soft">
-              {mission.invitation}
-            </p>
+          <h2 className="mt-5 font-serif text-3xl leading-(--leading-tight) text-ink">
+            {mission.title}
+          </h2>
+          <div className="mt-5 h-[3px] w-8 rounded-full bg-accent" />
 
-            <div className="mt-10 flex items-center gap-5">
-              <Button variant="primary" onClick={go}>
-                I&rsquo;m going
-              </Button>
-              <Button variant="ghost" onClick={showAnother}>
-                Another
-              </Button>
-            </div>
-          </article>
-        )}
-      </div>
+          <p className="mt-5 max-w-prose font-serif text-lg leading-(--leading-prose) text-ink-soft">
+            {mission.invitation}
+          </p>
+
+          <div className="mt-10 flex items-center gap-5">
+            <Button variant="primary" onClick={go}>
+              I&rsquo;m going
+            </Button>
+            <Button variant="ghost" onClick={showAnother}>
+              Another
+            </Button>
+          </div>
+        </article>
+      )}
     </div>
   );
 }

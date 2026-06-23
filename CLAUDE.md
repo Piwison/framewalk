@@ -58,3 +58,28 @@ skill; `frontend-design` is the official production-UI skill.
   and reinstall on the native OS. Guardrail: NEVER run `npm install` from the Linux sandbox
   into the user's connected folder — install/build deps only on the user's own machine.
   Verification of pure logic in-sandbox uses an isolated /tmp project, never the repo.
+- _2026-06-23 · Hydration mismatch from the theme init script._ Live browser test showed a
+  dev-only React hydration error on `<html>`: the `beforeInteractive` theme script sets
+  `data-theme` before hydration, which the server-rendered markup lacks. Fix: added
+  `suppressHydrationWarning` to `<html>` in `layout.tsx` (the documented pattern for theme
+  scripts). Note: requires a `npm run dev` restart to take effect — editing files through
+  the sandbox mount does not reliably trip Next's Windows file-watcher (HMR stays stale),
+  so a manual route reload or dev restart is needed to see sandbox-made changes.
+- _2026-06-23 · CTA + a11y hardening, CI/E2E added._ Consolidated every primary/quiet CTA
+  into `components/ui/action.ts` (Button + all link/label CTAs route through it — no drift);
+  Today location filter is now a real radiogroup (`role=radiogroup` + chip `role=radio` +
+  `aria-checked`, no `aria-pressed`). Added GitHub Actions CI (tsc → vitest → build, then a
+  gated e2e job) + Playwright E2E for the loop + axe-core (serious/critical, light+dark,
+  across /, /settings, /diary, /mission, /cull). Independent code+a11y review: APPROVE WITH
+  NITS (applied the two test-robustness nits). Guardrail: a dev-server **restart** is needed
+  after agent edits — Next's Windows file-watcher doesn't see mount writes, so SSR can serve
+  a stale module while the client HMRs the new one (shows as a transient hydration warning);
+  production builds are unaffected (one bundle).
+- _2026-06-23 · E2E toolchain leaked into the app gate._ Adding `e2e/*.spec.ts` +
+  `playwright.config.ts` made `tsc --noEmit`, `next build`, and `vitest` try to compile/run
+  them — failing because Playwright deps aren't part of the app and shouldn't be. (The app
+  itself was clean: all 9 tsc errors were in the Playwright files; 13 unit/component tests
+  passed.) Fix: exclude `e2e` + `playwright.config.ts` from the app `tsconfig`, scope vitest
+  `include` to `src/**`, and give e2e its own `e2e/tsconfig.json`. Guardrail: keep the
+  Playwright lane separate from the app build — `npm run e2e` is the only thing that needs
+  `@playwright/test` (+ `npx playwright install chromium`).

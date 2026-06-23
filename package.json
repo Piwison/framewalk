@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "dexie": "4.0.11",
@@ -19,7 +20,9 @@
     "react-dom": "19.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.1",
     "@eslint/eslintrc": "3.3.1",
+    "@playwright/test": "1.53.0",
     "@tailwindcss/postcss": "4.1.11",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.3.0",

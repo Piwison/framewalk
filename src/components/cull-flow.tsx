@@ -8,6 +8,7 @@ import { MISSIONS } from "@/lib/missions";
 import { makeThumbnail } from "@/lib/thumbnail";
 import { addKeeper } from "@/lib/db";
 import { Button } from "@/components/ui/button";
+import { primaryAction, quietAction } from "@/components/ui/action";
 
 type Phase = "import" | "review" | "story" | "done";
 
@@ -38,6 +39,7 @@ export function CullFlow() {
 
   const keepBtn = useRef<HTMLButtonElement>(null);
   const storyField = useRef<HTMLTextAreaElement>(null);
+  const doneHeading = useRef<HTMLParagraphElement>(null);
 
   // Revoke object URLs on unmount so preview blobs don't linger in memory.
   useEffect(() => {
@@ -51,6 +53,7 @@ export function CullFlow() {
   useEffect(() => {
     if (phase === "review") keepBtn.current?.focus();
     if (phase === "story") storyField.current?.focus();
+    if (phase === "done") doneHeading.current?.focus();
   }, [phase, index]);
 
   const current = shots[index];
@@ -72,9 +75,7 @@ export function CullFlow() {
     const next = index + 1;
     if (next >= shots.length) {
       setPhase("done");
-      setStatus(
-        saved ? "Saved. That's the last one." : "That's the last one.",
-      );
+      setStatus(saved ? "Saved. That's the last one." : "That's the last one.");
     } else {
       setIndex(next);
       setStory("");
@@ -132,7 +133,7 @@ export function CullFlow() {
             Pick the photos from this walk. They never leave your device — we keep
             only a small thumbnail of the ones you keep.
           </p>
-          <label className="mt-6 inline-flex cursor-pointer items-center justify-center rounded-full bg-ink px-6 py-3 font-medium text-on-ink hover:opacity-90">
+          <label className={`${primaryAction} mt-6 cursor-pointer`}>
             Choose photos
             <input
               type="file"
@@ -154,7 +155,7 @@ export function CullFlow() {
           <img
             src={current.url}
             alt={`Photo ${index + 1} from this walk`}
-            className="max-h-[60dvh] w-full rounded-lg object-contain transition-opacity duration-(--motion-base)"
+            className="max-h-[60dvh] w-full rounded-lg border border-line bg-paper-raised object-contain transition-opacity duration-(--motion-base)"
           />
           <div className="mt-6 flex items-center gap-3">
             <Button ref={keepBtn} variant="primary" onClick={keep}>
@@ -173,10 +174,10 @@ export function CullFlow() {
           <img
             src={current.url}
             alt={`Kept photo ${index + 1}`}
-            className="max-h-[40dvh] w-full rounded-lg object-contain"
+            className="max-h-[40dvh] w-full rounded-lg border border-line bg-paper-raised object-contain"
           />
           <label htmlFor="story" className="mt-6 block font-serif text-lg text-ink">
-            What's the story?
+            What&rsquo;s the story?
           </label>
           <textarea
             id="story"
@@ -209,22 +210,20 @@ export function CullFlow() {
 
       {phase === "done" ? (
         <div className="mt-10">
-          <p className="font-serif text-xl text-ink">
+          <p
+            ref={doneHeading}
+            tabIndex={-1}
+            className="font-serif text-xl text-ink outline-none"
+          >
             {keptCount === 0
               ? "Nothing kept this time — that's a good edit too."
               : `${keptCount} keeper${keptCount === 1 ? "" : "s"} saved.`}
           </p>
           <div className="mt-6 flex gap-3">
-            <Link
-              href="/diary"
-              className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3 font-medium text-on-ink hover:opacity-90"
-            >
+            <Link href="/diary" className={primaryAction}>
               Open your diary →
             </Link>
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-full border border-line px-6 py-3 text-ink hover:border-ink-faint"
-            >
+            <Link href="/" className={quietAction}>
               Back to Today
             </Link>
           </div>

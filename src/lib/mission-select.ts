@@ -75,17 +75,23 @@ export function missionOfTheDay(
   return idx >= 0 ? pool[idx] : undefined;
 }
 
-/** "Show me another" -- a different eligible mission than the current one (FR-2). */
+/**
+ * "Show me another" -- a different eligible mission than the current one (FR-2).
+ * Pass a changing `seed` (e.g. an incrementing tap counter) so repeated taps
+ * actually cycle instead of returning the same card within the same minute.
+ */
 export function anotherMission(
   missions: readonly Mission[],
   ctx: SelectionContext,
   currentId: string,
+  seed?: number,
 ): Mission | undefined {
   const pool = eligibleMissions(missions, ctx).filter((m) => m.id !== currentId);
   if (pool.length === 0) {
     return missions.find((m) => m.id === currentId);
   }
-  const idx = pickIndex(pool.length, Math.floor(ctx.now.getTime() / 60_000));
+  const s = seed ?? Math.floor(ctx.now.getTime() / 60_000);
+  const idx = pickIndex(pool.length, s);
   return idx >= 0 ? pool[idx] : undefined;
 }
 

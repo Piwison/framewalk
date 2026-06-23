@@ -9,6 +9,7 @@ import {
 import { allKeepers } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -29,7 +30,9 @@ export function SettingsPanel() {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    ensurePersistentStorage().then(setPersist).catch(() => setPersist("best-effort"));
+    ensurePersistentStorage()
+      .then(setPersist)
+      .catch(() => setPersist("best-effort"));
     storageEstimate()
       .then((e) => {
         if (e) setUsage(`${mb(e.usedBytes)} used of ~${mb(e.quotaBytes)} available`);
@@ -56,7 +59,6 @@ export function SettingsPanel() {
         exportedAt: Date.now(),
         keepers: entries,
       };
-      // Entirely local: build a Blob and trigger a download. No network (FR-10).
       const blob = new Blob([JSON.stringify(payload, null, 2)], {
         type: "application/json",
       });
@@ -73,6 +75,16 @@ export function SettingsPanel() {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <h2 className="font-medium text-ink">Appearance</h2>
+        <p className="mt-2 text-ink-soft">
+          Follow your device, or pick light or dark yourself.
+        </p>
+        <div className="mt-4">
+          <ThemeToggle />
+        </div>
+      </Card>
+
       <Card>
         <h2 className="font-medium text-ink">What we send</h2>
         <p className="mt-2 text-ink-soft">

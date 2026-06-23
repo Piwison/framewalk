@@ -1,22 +1,19 @@
 import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
+import { ghostAction, primaryAction, quietAction } from "./action";
 
 type Variant = "primary" | "quiet" | "ghost";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   children: ReactNode;
+  /** React 19 passes refs as a normal prop on function components. */
   ref?: Ref<HTMLButtonElement>;
 }
 
-const base =
-  "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 " +
-  "text-base transition-colors duration-(--motion-fast) " +
-  "disabled:opacity-50 disabled:pointer-events-none select-none";
-
 const variants: Record<Variant, string> = {
-  primary: "bg-ink text-on-ink hover:opacity-90",
-  quiet: "bg-transparent text-ink border border-line hover:border-line-strong",
-  ghost: "bg-transparent text-ink-soft hover:text-ink",
+  primary: primaryAction,
+  quiet: quietAction,
+  ghost: ghostAction,
 };
 
 export function Button({
@@ -31,7 +28,7 @@ export function Button({
     <button
       ref={ref}
       type={type}
-      className={`${base} ${variants[variant]} ${className}`}
+      className={`${variants[variant]} ${className}`}
       {...rest}
     >
       {children}

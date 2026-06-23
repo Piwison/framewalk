@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 import { AppInit } from "@/components/app-init";
+import { BottomNav } from "@/components/bottom-nav";
 
-// Humanist serif for mission prose; clean sans for UI. Exposed as the CSS vars
-// that tokens.css consumes (--font-prose / --font-ui).
 const prose = Fraunces({
   subsets: ["latin"],
   variable: "--font-prose",
@@ -27,21 +26,27 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf8f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#161512" },
+    { media: "(prefers-color-scheme: light)", color: "#fbfaf5" },
+    { media: "(prefers-color-scheme: dark)", color: "#1b1a15" },
   ],
-  // Let content extend under the notch; tokens.css adds safe-area padding.
   viewportFit: "cover",
   width: "device-width",
   initialScale: 1,
 };
 
+const themeInit =
+  "try{var t=localStorage.getItem('framewalk-theme');" +
+  "if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}";
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${prose.variable} ${ui.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${prose.variable} ${ui.variable}`}>
       <body className="min-h-dvh">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInit}
+        </Script>
         <AppInit />
         <a
           href="#main"
@@ -55,33 +60,5 @@ export default function RootLayout({
         <BottomNav />
       </body>
     </html>
-  );
-}
-
-function BottomNav() {
-  const items = [
-    { href: "/", label: "Today" },
-    { href: "/diary", label: "Diary" },
-    { href: "/settings", label: "Settings" },
-  ];
-  return (
-    <nav
-      aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/90 backdrop-blur"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
-      <ul className="mx-auto flex max-w-xl items-stretch justify-around">
-        {items.map((it) => (
-          <li key={it.href} className="flex-1">
-            <Link
-              href={it.href}
-              className="flex flex-col items-center gap-1 px-2 py-3 text-sm text-ink-soft hover:text-ink"
-            >
-              {it.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 }

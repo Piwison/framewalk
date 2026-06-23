@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 interface ChipProps {
   children: ReactNode;
-  /** Render as a toggle (selectable filter) vs a static label. */
+  /** Selectable (radio) vs a static label. */
   selected?: boolean;
   onClick?: () => void;
   ariaLabel?: string;
@@ -20,11 +20,13 @@ export function Chip({ children, selected, onClick, ariaLabel }: ChipProps) {
   if (!interactive) {
     return <span className={cls}>{children}</span>;
   }
+  // Single-select filter -> radio semantics (a parent sets role="radiogroup").
   return (
     <button
       type="button"
+      role="radio"
+      aria-checked={Boolean(selected)}
       className={cls}
-      aria-pressed={selected}
       aria-label={ariaLabel}
       onClick={onClick}
     >

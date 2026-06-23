@@ -5,6 +5,10 @@
  * space and a single hairline structure the page; the film-amber accent is a small
  * MARK (underline/dot/active chip), never a loud surface. No component may hardcode
  * a colour, space, type, radius, or motion value.
+ *
+ * Theming: light is the :root default. Dark applies either by system preference
+ * (when the user has not chosen) or by an explicit [data-theme="dark"] override
+ * set from Settings. [data-theme="light"] forces light even in a dark OS.
  */
 
 :root {
@@ -66,9 +70,9 @@
   --shadow-card: 0 1px 1px rgba(33, 31, 24, 0.03);
 }
 
+/* Warm dim -- calm, not a darkroom. Shared by system-dark and manual-dark. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* Warm dim -- calm, not a darkroom. */
+  :root:not([data-theme="light"]) {
     --paper: #1b1a15;
     --paper-raised: #232219;
     --ink: #ece8dc;
@@ -83,6 +87,22 @@
     --focus: #6db3d4;
     --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.25);
   }
+}
+
+[data-theme="dark"] {
+  --paper: #1b1a15;
+  --paper-raised: #232219;
+  --ink: #ece8dc;
+  --ink-soft: #b8b3a3;
+  --ink-faint: #9a9485;
+  --line: #322f27;
+  --line-strong: #423e33;
+  --accent: #d98a52;
+  --accent-soft: #3a2c1e;
+  --on-ink: #1b1a15;
+  --danger: #d98270;
+  --focus: #6db3d4;
+  --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.25);
 }
 
 @media (prefers-reduced-motion: reduce) {

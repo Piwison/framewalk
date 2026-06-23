@@ -5,6 +5,7 @@ import Link from "next/link";
 import { allKeepers, deleteKeeper } from "@/lib/db";
 import type { Keeper } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { primaryAction } from "@/components/ui/action";
 
 interface Row {
   readonly keeper: Keeper;
@@ -54,10 +55,7 @@ export function DiaryList() {
         <p className="mt-2 text-ink-soft">
           Take a walk, keep one frame, and it will live here.
         </p>
-        <Link
-          href="/"
-          className="mt-6 inline-flex rounded-full bg-ink px-6 py-3 font-medium text-on-ink hover:opacity-90"
-        >
+        <Link href="/" className={`${primaryAction} mt-6`}>
           Find today&rsquo;s mission →
         </Link>
       </div>
@@ -82,7 +80,7 @@ export function DiaryList() {
               {formatDate(row.keeper.createdAt)} · {row.keeper.missionTitle}
             </p>
             {row.keeper.story ? (
-              <p className="mt-2 font-serif text-lg leading-[var(--leading-prose)] text-ink">
+              <p className="mt-2 font-serif text-lg leading-(--leading-prose) text-ink">
                 {row.keeper.story}
               </p>
             ) : null}
