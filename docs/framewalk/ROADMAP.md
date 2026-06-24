@@ -4,44 +4,39 @@
 > North star: weekly *intentful walks completed* (mission opened → ≥1 keeper saved).
 > Design direction (locked): 間 Ma — "清亮無負擔" (bright, unburdened, type-led).
 
-## ✅ Done
-- **M1 MVP scaffold** — Next.js App Router, React 19, TS strict, Tailwind v4, PWA. AI-free.
+## ✅ M1 — SHIPPED (the loop works, to product-quality)
 - **Core loop** — Today → Mission (approach/ethics cards) → Cull → Story → Diary, on
-  IndexedDB; Settings with privacy + on-device export.
-- **Engineering harness** — `.claude/` (4 reviewer subagents + ai-product-builder, hooks,
-  weekly digest).
-- **Ma UI redesign** — tokens rebuilt; light + warm-dim dark; WCAG AA on every pair.
-- **Theme toggle** — System / Light / Dark, no-flash init, radiogroup semantics.
-- **CTA consolidation** — one shared source (`components/ui/action.ts`); Button + every
-  link/label CTA route through it (no drift).
-- **A11y** — active nav state, location filter is a real radiogroup, cull focus advance,
-  scoped aria-live, hydration fix (`suppressHydrationWarning`).
-- **Quality gate institutionalised** — GitHub Actions CI (tsc → vitest → build → gated
-  e2e); Playwright E2E for the loop; axe-core (serious/critical, light + dark, across
-  /, /settings, /diary, /mission, /cull).
-- **Verification** — pure logic strict typecheck + behaviour assertions green; independent
-  grill + design/a11y + code reviews (verdict: approve with nits — applied); live browser
-  walkthrough of the full loop in light + dark.
+  IndexedDB; Settings with privacy + on-device export. 100% AI-free.
+- **Stack/harness** — Next.js App Router + React 19 + TS strict + Tailwind v4, PWA;
+  `.claude/` harness (4 reviewer subagents + hooks + weekly digest).
+- **Ma UI** — tokens single-source; light + warm-dim dark; System/Light/Dark toggle;
+  WCAG AA on every pair; one shared CTA source; location filter is a real radiogroup.
+- **Quality gate — GREEN** (verified on the machine 2026-06-23):
+  `tsc --noEmit` clean · `vitest` 13/13 · `next build` compiles · **Playwright 28/28**
+  (core loop + axe serious/critical = 0, light + dark, mobile + desktop, across
+  /, /settings, /diary, /mission, /cull). CI runs all of it on every push.
+- **Reviews** — pre-code grill gate; independent design/a11y + code reviews (approve with
+  nits — applied); live browser walkthrough in light + dark.
 
-## ▶ Now — remaining (needs your machine / a decision)
-1. **Restart `npm run dev` after agent edits** — Next's Windows file-watcher doesn't see
-   sandbox/mount writes, so SSR can serve a stale module (transient hydration warning).
-   Production builds are unaffected. (Process note, not a code fix.)
-2. **Run the full gate locally / in CI** — `npm install` then `npm run typecheck && npm test
-   && npm run build && npm run e2e`. (The sandbox can't run the Next build; CI will.)
+## ✅ Also done (2026-06-23)
+- **Deployed live** — https://framewalk-psi.vercel.app (Vercel Hobby, $0). Built on patched
+  **Next 15.5.19** after Vercel blocked the vulnerable 15.3.5. GitHub repo linked
+  (Piwison/framewalk) for auto-deploys.
+- **Dependency hygiene** — `npm audit` triaged: all 6 flags were dev/test/build tooling, none
+  in the shipped bundle. Bumped vitest → 3.2.6, @playwright/test → 1.61.1, added a
+  `postcss ^8.5.10` override. (Run `npm install` + `npm audit fix` to confirm clean.)
 
-## ⏭ Next
-3. **Real iOS device pass** — install to home screen → airplane mode → Today + a mission +
-   diary load; photo import works from the installed icon. *(Needs a physical device — you.)*
-4. **Deploy** — Vercel Hobby preview; verify $0 + offline. *(Needs your Vercel connection +
-   an explicit go — deploying publishes the app.)*
-5. **PM decision** — approve (or not) the **ponytail** skill install; confirm any new
-   skills/MCPs (untrusted-by-default).
+## ▶ Now — remaining
+1. **Real iOS device pass** — install to home screen → airplane mode → Today + a mission +
+   diary load; photo import works from the installed icon. *(Needs your device.)*
+2. ✅ **ponytail APPROVED** (2026-06-23) — install via the desktop plugin UI (agents can't
+   install plugins from a session). See `SKILLS-TO-IMPORT.md`.
 
 ## 🗓 Later (v1.1 "it sticks" — still no AI)
-6. Weekly reflection from your own tags; richer diary filters; mission favouriting.
-7. Desktop treatment (wide screens currently center a mobile column).
-8. Small refinements: APG-grade arrow-key nav for the radiogroup (AA already met via Tab),
+5. ✅ **Weekly reflection** shipped — `lib/reflection.ts` + `ReflectionCard` on Diary (no AI,
+   on-device, vitest-covered). Richer diary filters + mission favouriting still open.
+6. Desktop treatment (wide screens currently center a mobile column).
+7. Small refinements: APG-grade arrow-key nav for the radiogroup (AA already met via Tab),
    diary thumbnail mat; landing page in the Ma voice; then a small public beta.
 
 ## 🧊 Deferred — see `BACKLOG.md`
@@ -49,5 +44,5 @@ All AI features + encrypted sync / zine export / group walks. Only after the loo
 
 ## Acceptance bar (every step)
 TS strict, tokens are the only source of design values, AA contrast, reduced-motion honored,
-nothing is "done" until `tsc` + `vitest` (and now e2e + axe) pass. The writer of code never
+nothing is "done" until `tsc` + `vitest` + `e2e` + `axe` pass. The writer of code never
 approves it — review runs in an independent context.

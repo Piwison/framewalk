@@ -1,11 +1,11 @@
 import type { Mission } from "./types";
 
 /**
- * The hand-authored mission library. Quality over volume (grill note A5): a
- * dozen well-crafted, varied invitations beat sixty filler cards. Tone per the
- * PRD — warm, second-person, an invitation ("See if you can find…"), no orders.
- *
- * This is plain data, served from the bundle so it works fully offline (FR-3).
+ * The hand-authored mission library. Quality over volume: a dozen well-crafted,
+ * varied invitations beat sixty filler cards. Tone per the PRD — warm,
+ * second-person, an invitation ("See if you can find…"), no orders.
+ * Served from the bundle so it works fully offline (FR-3). `themes` power the
+ * private weekly reflection (v1.1) — no AI, just the user's own tallies.
  */
 export const MISSIONS: readonly Mission[] = [
   {
@@ -17,6 +17,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "home", "travel"],
     difficulty: "gentle",
     involvesPeople: false,
+    themes: ["light", "shadow"],
   },
   {
     id: "the-colour-of-the-day",
@@ -27,6 +28,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "nature", "travel"],
     difficulty: "gentle",
     involvesPeople: false,
+    themes: ["colour"],
   },
   {
     id: "hands-at-work",
@@ -37,6 +39,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "travel"],
     difficulty: "bold",
     involvesPeople: true,
+    themes: ["people", "hands"],
   },
   {
     id: "negative-space-walk",
@@ -47,6 +50,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "nature", "home", "travel"],
     difficulty: "stretch",
     involvesPeople: false,
+    themes: ["composition", "stillness"],
   },
   {
     id: "one-stranger-one-yes",
@@ -57,6 +61,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "travel"],
     difficulty: "bold",
     involvesPeople: true,
+    themes: ["people", "portrait"],
   },
   {
     id: "the-reflection-test",
@@ -67,6 +72,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "home", "travel"],
     difficulty: "stretch",
     involvesPeople: false,
+    themes: ["reflection", "composition"],
   },
   {
     id: "small-life-at-home",
@@ -77,6 +83,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["home"],
     difficulty: "gentle",
     involvesPeople: false,
+    themes: ["home", "everyday"],
   },
   {
     id: "follow-the-line",
@@ -87,6 +94,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "nature", "travel"],
     difficulty: "gentle",
     involvesPeople: false,
+    themes: ["line", "composition"],
   },
   {
     id: "blue-hour-warmth",
@@ -97,6 +105,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "travel"],
     difficulty: "stretch",
     involvesPeople: false,
+    themes: ["light", "colour"],
   },
   {
     id: "texture-up-close",
@@ -107,6 +116,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["nature", "home", "street"],
     difficulty: "gentle",
     involvesPeople: false,
+    themes: ["texture", "detail"],
   },
   {
     id: "the-quiet-portrait",
@@ -117,6 +127,7 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["home", "travel"],
     difficulty: "stretch",
     involvesPeople: true,
+    themes: ["people", "portrait"],
   },
   {
     id: "night-and-a-single-light",
@@ -127,5 +138,6 @@ export const MISSIONS: readonly Mission[] = [
     locationTypes: ["street", "home", "travel"],
     difficulty: "bold",
     involvesPeople: false,
+    themes: ["light", "night"],
   },
 ];

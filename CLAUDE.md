@@ -83,3 +83,17 @@ skill; `frontend-design` is the official production-UI skill.
   `include` to `src/**`, and give e2e its own `e2e/tsconfig.json`. Guardrail: keep the
   Playwright lane separate from the app build — `npm run e2e` is the only thing that needs
   `@playwright/test` (+ `npx playwright install chromium`).
+- _2026-06-23 · Vercel blocked deploy: vulnerable Next.js._ First `vercel` deploy created the
+  project + linked GitHub (Piwison/framewalk) but errored "Vulnerable version of Next.js
+  detected" — the pinned `next@15.3.5` carries known CVEs (the same critical/high `npm audit`
+  flags). Fix: bumped `next` + `eslint-config-next` to `15.5.19` (latest patched 15.x; avoided
+  the 16.x major to keep the tested surface). Re-run `npm install` + the full gate, then
+  redeploy. Guardrail: pin to the latest patch of the supported minor; check the Vercel build
+  log / `npm audit` after dependency bumps before calling a deploy done.
+- _2026-06-23 · v1.1 weekly reflection shipped (no AI)._ Added `themes[]` to missions + a pure
+  `lib/reflection.ts` (week/month walks, keepers, story rate, top themes, difficulty mix,
+  people count) with vitest coverage; rendered a calm `ReflectionCard` above the Diary
+  (gentle copy, no streak guilt, hidden until ≥1 keeper). PM approved the **ponytail** skill
+  (install via desktop UI — agents can't install plugins from a session). Guardrail: adding a
+  required field to `Mission` (`themes`) means every Mission-builder in tests needs it —
+  updated the `mission-select.test.ts` helper so `tsc`/`vitest` stay green.

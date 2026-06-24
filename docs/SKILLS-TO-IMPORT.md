@@ -51,3 +51,18 @@ as discipline during the M1 scaffold (native `<input type="date/file">`, native
 hand-written SW instead of a framework). grill-me was run as a subagent gate *before*
 writing screen code; its delete-list and must-fix list shaped the final plan (see
 `docs/framewalk/BUILD-NOTES.md`).
+
+## ✅ PM decision — ponytail APPROVED (2026-06-23)
+
+Jason (PM) approved installing **ponytail** (YAGNI / lazy-senior-dev discipline). It was
+already applied informally throughout M1; this makes it an always-on guardrail.
+
+**Install (desktop app — the agent cannot install plugins from a session):**
+1. Customize → the **+** by personal plugins → **Create plugin and add marketplace** →
+   **Add from repository** → enter `https://github.com/DietrichGebert/ponytail`.
+2. Install **ponytail@ponytail**. Optionally set `PONYTAIL_DEFAULT_MODE=full`.
+3. New sessions then load the YAGNI ruleset; `/ponytail-review` audits a diff for over-build.
+
+Source pinned + reviewed: `github.com/DietrichGebert/ponytail` (MIT, ~45k★). Treated as
+third-party — re-confirm the source before installing. grill-me remains used as an
+independent-context subagent gate, not a standing install.

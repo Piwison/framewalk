@@ -15,6 +15,7 @@ const M = (over: Partial<Mission> & Pick<Mission, "id">): Mission => ({
   locationTypes: ["street", "nature", "home", "travel"],
   difficulty: "gentle",
   involvesPeople: false,
+  themes: [],
   ...over,
 });
 

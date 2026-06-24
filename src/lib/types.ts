@@ -18,6 +18,8 @@ export interface Mission {
   readonly difficulty: Difficulty;
   /** If true, the Mission detail surfaces approach + ethics cards. */
   readonly involvesPeople: boolean;
+  /** Light thematic tags for reflections, e.g. ["light","colour"]. */
+  readonly themes: readonly string[];
 }
 
 /** A kept photo with its story — the diary's unit. Stored in IndexedDB. */

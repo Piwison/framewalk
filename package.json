@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "dexie": "4.0.11",
-    "next": "15.3.5",
+    "next": "15.5.19",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.1",
     "@eslint/eslintrc": "3.3.1",
-    "@playwright/test": "1.53.0",
+    "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "4.1.11",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.3.0",
@@ -31,10 +31,13 @@
     "@types/react-dom": "19.1.6",
     "@vitejs/plugin-react": "4.6.0",
     "eslint": "9.30.0",
-    "eslint-config-next": "15.3.5",
+    "eslint-config-next": "15.5.19",
     "jsdom": "26.1.0",
     "tailwindcss": "4.1.11",
     "typescript": "5.8.3",
-    "vitest": "3.2.4"
+    "vitest": "3.2.6"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }
