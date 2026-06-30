@@ -8,6 +8,24 @@ A standalone, long-lived **web app** (not a throwaway prototype), owned by the P
 Frontend, harness, architecture decisions, and contracts are the PM's domain; deep
 backend / DB / deployment is **[engineer scope]**.
 
+## Team & workflow
+A full agent team, gated by slash-commands (Command → Agent → Skill). Jason (PM/owner) is
+consulted **only at 3 direction gates**; the team runs everything between.
+
+| Role | Agent / who | Command | Gate |
+|------|-------------|---------|------|
+| Product Manager | `product-manager` | `/pm` | ⛔ 1 — picks priorities (PRD/roadmap) |
+| Product Designer | `product-designer` | `/design` | ⛔ 2 — design direction sign-off |
+| Architect | `component-architect` | `/architect` | — |
+| Developer | **main thread (you)** | `/build` | — |
+| QA | `qa-engineer` | `/qa` | — |
+| Reviewers | `code-reviewer` + `design-reviewer` + `a11y-checker` | `/review` | — (writer never self-approves) |
+| Ship | tech-lead `ai-product-builder` | `/ship` | ⛔ 3 — ship/merge |
+
+`/feature <idea>` chains all stages, pausing at the 3 gates. Domain rules in `.claude/rules/`
+auto-load by file path. Models: PM + designer `opus`; architect/qa/reviewers `sonnet`; a11y
+`haiku`.
+
 ## Stack
 Next.js (App Router) · React · TypeScript (`strict`) · Tailwind v4.
 Server Components by default; `'use client'` only at justified boundaries.
@@ -40,7 +58,10 @@ AGENTS.md            # this file (canonical shared layer)
 CLAUDE.md            # @AGENTS.md import + Claude-specific notes + error log
 HARNESS-AUDIT-AND-SETUP-BRIEF.md  # the 2026-H2 baseline + audit/remediation discipline
 .claude/
-  agents/            # ai-product-builder + component-architect/design-reviewer/a11y-checker/code-reviewer
+  agents/            # product-manager/product-designer/qa-engineer + component-architect
+                     #   /design-reviewer/a11y-checker/code-reviewer + ai-product-builder (tech-lead)
+  commands/          # /pm /design /architect /build /qa /review /ship /feature (workflow gates)
+  rules/             # auto-load by paths: tokens-and-design, privacy-and-storage, testing
   hooks/             # guard-write.mjs, post-write.mjs
   memory/            # ai-weekly-digest.md (compounding AI knowledge)
   settings.json      # hooks, permissions, subagent model
