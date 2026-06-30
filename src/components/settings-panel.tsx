@@ -35,7 +35,8 @@ export function SettingsPanel() {
       .catch(() => setPersist("best-effort"));
     storageEstimate()
       .then((e) => {
-        if (e) setUsage(`${mb(e.usedBytes)} used of ~${mb(e.quotaBytes)} available`);
+        if (e)
+          setUsage(`${mb(e.usedBytes)} used of ~${mb(e.quotaBytes)} available`);
       })
       .catch(() => undefined);
   }, []);
@@ -50,12 +51,15 @@ export function SettingsPanel() {
           missionTitle: k.missionTitle,
           story: k.story,
           createdAt: k.createdAt,
-          thumbnail: await blobToDataUrl(k.thumbnail),
+          coverIndex: k.coverIndex,
+          images: await Promise.all(
+            k.images.map((blob) => blobToDataUrl(blob)),
+          ),
         })),
       );
       const payload = {
         app: "framewalk",
-        version: 1,
+        version: 2,
         exportedAt: Date.now(),
         keepers: entries,
       };

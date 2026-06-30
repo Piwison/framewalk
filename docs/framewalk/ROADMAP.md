@@ -35,6 +35,12 @@
 ## 🗓 Later (v1.1 "it sticks" — still no AI)
 5. ✅ **Weekly reflection** shipped — `lib/reflection.ts` + `ReflectionCard` on Diary (no AI,
    on-device, vitest-covered). Richer diary filters + mission favouriting still open.
+5b. ✅ **Rolls (Phase 1)** shipped — multi-image diary entries grouped during the cull
+   (`SPEC-rolls.md`, FR-R1..R5). Dexie v2 non-destructive migration (existing keepers → rolls
+   of 1), Compose step (one-roll vs each-on-its-own), roll Diary card (cover + count badge +
+   expandable grid), `images[]` export, reflection "frames" tally. tsc + 24 vitest + build
+   green; live browser pass (single + 3-frame roll). **Phase 2 still open**: pick cover /
+   reorder, multiple rolls per walk, add-frames-to-existing-roll from the Diary.
 6. Desktop treatment (wide screens currently center a mobile column).
 7. Small refinements: APG-grade arrow-key nav for the radiogroup (AA already met via Tab),
    diary thumbnail mat; landing page in the Ma voice; then a small public beta.

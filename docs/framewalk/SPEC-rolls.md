@@ -1,7 +1,11 @@
 # FrameWalk — Spec: Rolls (multi-image entries)
 
-> Status: proposed (PM picked: "Roll", grouped during the cull) · 2026-06-23 · v1.1+
+> Status: **Phase 1 SHIPPED** (2026-06-30) · originally proposed 2026-06-23 · v1.1+
 > Owner: Jason (PM). Companion: `PRD.md`, `DESIGN-THINKING.md`.
+> Phase 1 landed: `Keeper.images[]`/`coverIndex` + Dexie v2 migration (`src/lib/db.ts`),
+> Compose step in the cull (`src/components/cull-flow.tsx`), roll Diary card
+> (`src/components/diary-list.tsx`), `images[]` export (`settings-panel.tsx`), and the
+> reflection "frames" tally (`src/lib/reflection.ts`). Phase 2 (§7) remains open.
 
 ## 1. Problem (design-thinking)
 A themed mission ("the colour of the day — red", "three frames") is a **study**: one walk

@@ -21,6 +21,8 @@ export interface ThemeCount {
 
 export interface Reflection {
   readonly totalKeepers: number;
+  /** total frames across every entry (a roll of N counts N) — ≥ totalKeepers */
+  readonly totalFrames: number;
   /** last 7 days */
   readonly weekKeepers: number;
   readonly weekWalks: number;
@@ -81,6 +83,7 @@ export function buildReflection({
 
   return {
     totalKeepers: keepers.length,
+    totalFrames: keepers.reduce((sum, k) => sum + k.images.length, 0),
     weekKeepers: inWeek.length,
     weekWalks: distinctDays(inWeek),
     monthKeepers: inMonth.length,

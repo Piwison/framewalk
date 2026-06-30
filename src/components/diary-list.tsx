@@ -9,7 +9,8 @@ import { primaryAction } from "@/components/ui/action";
 
 interface Row {
   readonly keeper: Keeper;
-  readonly url: string;
+  /** Object URLs for every frame in the roll (urls[coverIndex] is the cover). */
+  readonly urls: readonly string[];
 }
 
 function formatDate(ms: number): string {
@@ -22,26 +23,39 @@ function formatDate(ms: number): string {
 
 export function DiaryList() {
   const [rows, setRows] = useState<Row[] | null>(null);
+  // Which rolls have their full grid expanded (keyed by keeper id).
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {
-    let urls: string[] = [];
+    let created: string[] = [];
     allKeepers()
       .then((keepers) => {
         const mapped = keepers.map((keeper) => ({
           keeper,
-          url: URL.createObjectURL(keeper.thumbnail),
+          urls: keeper.images.map((blob) => URL.createObjectURL(blob)),
         }));
-        urls = mapped.map((r) => r.url);
+        created = mapped.flatMap((r) => r.urls);
         setRows(mapped);
       })
       .catch(() => setRows([]));
-    return () => urls.forEach((u) => URL.revokeObjectURL(u));
+    return () => created.forEach((u) => URL.revokeObjectURL(u));
   }, []);
+
+  function toggle(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   async function remove(row: Row) {
     await deleteKeeper(row.keeper.id);
-    URL.revokeObjectURL(row.url);
-    setRows((prev) => prev?.filter((r) => r.keeper.id !== row.keeper.id) ?? null);
+    row.urls.forEach((u) => URL.revokeObjectURL(u));
+    setRows(
+      (prev) => prev?.filter((r) => r.keeper.id !== row.keeper.id) ?? null,
+    );
   }
 
   if (rows === null) {
@@ -51,7 +65,9 @@ export function DiaryList() {
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-line bg-paper-raised p-8 text-center">
-        <p className="font-serif text-lg text-ink">Your diary is empty — for now.</p>
+        <p className="font-serif text-lg text-ink">
+          Your diary is empty — for now.
+        </p>
         <p className="mt-2 text-ink-soft">
           Take a walk, keep one frame, and it will live here.
         </p>
@@ -64,39 +80,84 @@ export function DiaryList() {
 
   return (
     <ul className="space-y-6">
-      {rows.map((row) => (
-        <li
-          key={row.keeper.id}
-          className="overflow-hidden rounded-lg border border-line bg-paper-raised"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={row.url}
-            alt={row.keeper.story || `Keeper from ${row.keeper.missionTitle}`}
-            className="max-h-[50dvh] w-full object-contain"
-          />
-          <div className="p-5">
-            <p className="text-sm text-ink-faint">
-              {formatDate(row.keeper.createdAt)} · {row.keeper.missionTitle}
-            </p>
-            {row.keeper.story ? (
-              <p className="mt-2 font-serif text-lg leading-(--leading-prose) text-ink">
-                {row.keeper.story}
-              </p>
-            ) : null}
-            <div className="mt-4">
-              <Button
-                variant="ghost"
-                className="px-0 text-sm"
-                aria-label={`Remove keeper from ${row.keeper.missionTitle}`}
-                onClick={() => remove(row)}
-              >
-                Remove
-              </Button>
+      {rows.map((row) => {
+        const { keeper } = row;
+        const frameCount = keeper.images.length;
+        const isRoll = frameCount > 1;
+        const cover = row.urls[keeper.coverIndex] ?? row.urls[0];
+        const isOpen = expanded.has(keeper.id);
+
+        return (
+          <li
+            key={keeper.id}
+            className="overflow-hidden rounded-lg border border-line bg-paper-raised"
+          >
+            <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={isOpen ? row.urls[0] : cover}
+                alt={keeper.story || `Keeper from ${keeper.missionTitle}`}
+                className="max-h-[50dvh] w-full object-contain"
+              />
+              {isRoll && !isOpen ? (
+                <span
+                  className="absolute right-3 top-3 inline-flex items-center rounded-full border border-line bg-paper px-2 py-0.5 text-sm text-ink-soft"
+                  aria-hidden="true"
+                >
+                  {frameCount}
+                </span>
+              ) : null}
             </div>
-          </div>
-        </li>
-      ))}
+
+            {isRoll && isOpen ? (
+              <ul className="grid grid-cols-3 gap-1 p-1 sm:grid-cols-4">
+                {row.urls.map((u, i) => (
+                  <li key={i}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={u}
+                      alt={`Frame ${i + 1} of ${frameCount}`}
+                      className="aspect-square w-full object-cover"
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            <div className="p-5">
+              <p className="text-sm text-ink-faint">
+                {formatDate(keeper.createdAt)} · {keeper.missionTitle}
+                {isRoll ? ` · ${frameCount} frames` : ""}
+              </p>
+              {keeper.story ? (
+                <p className="mt-2 font-serif text-lg leading-(--leading-prose) text-ink">
+                  {keeper.story}
+                </p>
+              ) : null}
+              <div className="mt-4 flex items-center gap-4">
+                {isRoll ? (
+                  <Button
+                    variant="ghost"
+                    className="px-0 text-sm"
+                    aria-expanded={isOpen}
+                    onClick={() => toggle(keeper.id)}
+                  >
+                    {isOpen ? "Hide frames" : `View all ${frameCount} frames`}
+                  </Button>
+                ) : null}
+                <Button
+                  variant="ghost"
+                  className="px-0 text-sm"
+                  aria-label={`Remove keeper from ${keeper.missionTitle}`}
+                  onClick={() => remove(row)}
+                >
+                  Remove
+                </Button>
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }

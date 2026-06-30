@@ -6,7 +6,9 @@ const now = new Date(2026, 5, 23, 12, 0, 0);
 const daysAgo = (n: number, h = 12) =>
   new Date(2026, 5, 23 - n, h, 0, 0).getTime();
 
-const M = (over: Partial<Mission> & Pick<Mission, "id" | "themes">): Mission => ({
+const M = (
+  over: Partial<Mission> & Pick<Mission, "id" | "themes">,
+): Mission => ({
   title: over.id,
   invitation: "…",
   timesOfDay: ["morning"],
@@ -26,12 +28,14 @@ const K = (
   missionId: string,
   createdAt: number,
   story = "",
+  frames = 1,
 ): Keeper => ({
   id,
   missionId,
   missionTitle: missionId,
   story,
-  thumbnail: new Blob(),
+  images: Array.from({ length: frames }, () => new Blob()),
+  coverIndex: 0,
   createdAt,
 });
 
@@ -72,6 +76,16 @@ describe("buildReflection", () => {
     expect(r.difficultyMix).toEqual({ gentle: 1, stretch: 0, bold: 1 });
     expect(r.peopleKeepers).toBe(1);
     expect(r.storyRate).toBeCloseTo(0.5);
+  });
+
+  it("counts total frames across rolls (a roll of N counts N)", () => {
+    const keepers = [
+      K("1", "a", daysAgo(1), "", 1), // a single
+      K("2", "a", daysAgo(2), "", 4), // a roll of 4
+    ];
+    const r = buildReflection({ now, keepers, missions });
+    expect(r.totalKeepers).toBe(2);
+    expect(r.totalFrames).toBe(5);
   });
 
   it("is empty-safe and ignores unknown missions for theme tallies", () => {

@@ -97,3 +97,19 @@ skill; `frontend-design` is the official production-UI skill.
   (install via desktop UI — agents can't install plugins from a session). Guardrail: adding a
   required field to `Mission` (`themes`) means every Mission-builder in tests needs it —
   updated the `mission-select.test.ts` helper so `tsc`/`vitest` stay green.
+- _2026-06-30 · Rolls Phase 1 shipped (no AI)._ Multi-image diary entries grouped during the
+  cull (`SPEC-rolls.md`). `Keeper.thumbnail: Blob` → `images: readonly Blob[]` + `coverIndex`
+  (`types.ts`); **Dexie v2** non-destructive `.upgrade()` maps each v1 row → roll of 1. Added a
+  Compose step to `cull-flow.tsx` (keep ≥2 → "one roll" vs "each on its own"; 1 keeper = no
+  extra step), a roll-aware `diary-list.tsx` card (cover + count badge + expandable grid),
+  `images[]` export (payload `version:2`), and a reflection `totalFrames` "frames" tally.
+  Gate GREEN: tsc + 24 vitest (incl. Compose branching + migration) + eslint + `next build`;
+  live Chromium pass (single keeper, 3-frame roll, expand). Two guardrails learned: (1) a fresh
+  web container has **no `node_modules`** — the post-write/Stop hooks spew "Cannot find module"
+  until you `npm install`; this remote container is ephemeral/isolated, so installing here is
+  correct (unlike the old Windows-mount guardrail). (2) Dexie `modify` mutates rows in place, so
+  the upgrade transform needs a **mutable** row type (not the `readonly` `Keeper`); extracted it
+  to a pure exported `migrateKeeperV1ToV2()` so the migration is unit-testable without
+  fake-indexeddb. (3) The two browser MCPs default to a `chrome`/`stable` channel that isn't
+  installed — drive the pre-installed Chromium at `/opt/pw-browsers/chromium-1194/...` via a
+  Playwright `executablePath` script instead.
