@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MISSIONS } from "@/lib/missions";
 import {
@@ -9,9 +9,11 @@ import {
   recentMissionIds,
 } from "@/lib/mission-select";
 import { recordServed, servedLog } from "@/lib/db";
+import { readFavourites, toggleFavourite } from "@/lib/favourites";
 import type { LocationType, Mission } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { FavouriteToggle } from "@/components/ui/favourite-toggle";
 
 const LOCATIONS: readonly { value: LocationType | "any"; label: string }[] = [
   { value: "any", label: "Anywhere" },
@@ -28,9 +30,16 @@ export function TodayMission() {
   const [mission, setMission] = useState<Mission | null>(null);
   const [ready, setReady] = useState(false);
   const [nonce, setNonce] = useState(1);
+  const [favouriteIds, setFavouriteIds] = useState<readonly string[]>([]);
+  // Read via a ref inside selection so toggling a favourite never reshuffles the
+  // *current* card — favourites only steer the initial pick and the next "Another".
+  const favIdsRef = useRef<readonly string[]>([]);
 
   useEffect(() => {
     let active = true;
+    const favs = readFavourites();
+    favIdsRef.current = favs;
+    setFavouriteIds(favs);
     servedLog()
       .then((log) => {
         if (active) setRecent(recentMissionIds(log, new Date()));
@@ -52,6 +61,7 @@ export function TodayMission() {
       now: new Date(),
       locationType: location === "any" ? undefined : location,
       recentIds: recent,
+      favouriteIds: favIdsRef.current,
     };
     setMission(missionOfTheDay(MISSIONS, ctx) ?? null);
   }, [ready, location, recent]);
@@ -65,12 +75,20 @@ export function TodayMission() {
         now: new Date(),
         locationType: location === "any" ? undefined : location,
         recentIds: recent,
+        favouriteIds: favIdsRef.current,
       },
       mission.id,
       next,
     );
     setNonce(next);
     if (picked) setMission(picked);
+  }
+
+  function toggleFavouriteMission() {
+    if (!mission) return;
+    const next = toggleFavourite(mission.id);
+    favIdsRef.current = next;
+    setFavouriteIds(next);
   }
 
   async function go() {
@@ -111,14 +129,20 @@ export function TodayMission() {
         <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
       ) : (
         <article>
-          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
-            <span>{mission.difficulty}</span>
-            {mission.involvesPeople ? (
-              <>
-                <span aria-hidden="true">·</span>
-                <span>with people</span>
-              </>
-            ) : null}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
+              <span>{mission.difficulty}</span>
+              {mission.involvesPeople ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>with people</span>
+                </>
+              ) : null}
+            </div>
+            <FavouriteToggle
+              favourited={favouriteIds.includes(mission.id)}
+              onToggle={toggleFavouriteMission}
+            />
           </div>
 
           <h2 className="mt-5 font-serif text-3xl leading-(--leading-tight) text-ink">

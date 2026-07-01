@@ -13,13 +13,14 @@
 
 ## Candidates
 
-### 🌱 Mission favouriting
-- **User / JTBD:** A returning walker who loved a themed mission ("the colour of the day")
-  wants to *find it again* — "When a mission lands for me, let me mark it so it comes back,
-  so I'm more likely to head out again."
-- **Slice:** a favourite toggle on the mission + a way for `missionOfTheDay`/"Another" to favour
-  favourites. On-device only (a small Dexie store or a flag).
-- **North star:** drives *repeat* intentful walks — the core metric.
+### ✅ Mission favouriting — promoted (2026-07-01, gate 1)
+- **User / JTBD:** "Plateau Pete" wants to head out on a mission that already worked — "When a
+  mission lands for me, let me mark it so it comes back, so I'm more likely to head out again."
+- **Slice (P0):** a calm favourite toggle on the mission + `missionOfTheDay`/"Another" gently
+  prefer eligible favourites. **`localStorage`-backed** (no Dexie migration, no sign-off).
+- **North star:** smooths the *re-entry moment* → drives repeat intentful walks.
+- **Spec:** `docs/framewalk/SPEC-mission-favouriting.md` (FR-F1..F8). Extensions parked:
+  favourites view (A2), Dexie-backed + exportable (A3, needs sign-off).
 
 ### 🌱 Richer diary filters
 - **User / JTBD:** A walker with a growing diary wants to revisit a thread — "let me filter my

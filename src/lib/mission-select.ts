@@ -20,6 +20,23 @@ export interface SelectionContext {
   readonly locationType?: LocationType;
   /** Mission ids served within the no-repeat window (FR-2). */
   readonly recentIds?: readonly string[];
+  /** Favourited mission ids — gently preferred when eligible (SPEC-fav FR-F3/F4). */
+  readonly favouriteIds?: readonly string[];
+}
+
+/**
+ * Gently prefer favourites *within* an already-eligible pool: return the favourited subset
+ * when it is non-empty, else the pool unchanged (SPEC-fav FR-F3/F4). This never bypasses the
+ * eligibility/fallback ladder, so the user is never trapped on a stale favourite.
+ */
+function preferFavourites(
+  pool: readonly Mission[],
+  favouriteIds?: readonly string[],
+): readonly Mission[] {
+  if (!favouriteIds || favouriteIds.length === 0) return pool;
+  const favs = new Set(favouriteIds);
+  const preferred = pool.filter((m) => favs.has(m.id));
+  return preferred.length > 0 ? preferred : pool;
 }
 
 /**
@@ -69,7 +86,10 @@ export function missionOfTheDay(
   missions: readonly Mission[],
   ctx: SelectionContext,
 ): Mission | undefined {
-  const pool = eligibleMissions(missions, ctx);
+  const pool = preferFavourites(
+    eligibleMissions(missions, ctx),
+    ctx.favouriteIds,
+  );
   const daySeed = Math.floor(ctx.now.getTime() / DAY_MS);
   const idx = pickIndex(pool.length, daySeed);
   return idx >= 0 ? pool[idx] : undefined;
@@ -86,10 +106,13 @@ export function anotherMission(
   currentId: string,
   seed?: number,
 ): Mission | undefined {
-  const pool = eligibleMissions(missions, ctx).filter((m) => m.id !== currentId);
-  if (pool.length === 0) {
+  const eligible = eligibleMissions(missions, ctx).filter(
+    (m) => m.id !== currentId,
+  );
+  if (eligible.length === 0) {
     return missions.find((m) => m.id === currentId);
   }
+  const pool = preferFavourites(eligible, ctx.favouriteIds);
   const s = seed ?? Math.floor(ctx.now.getTime() / 60_000);
   const idx = pickIndex(pool.length, s);
   return idx >= 0 ? pool[idx] : undefined;

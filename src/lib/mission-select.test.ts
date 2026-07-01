@@ -63,15 +63,25 @@ describe("eligibleMissions", () => {
   });
 
   it("never returns empty — widens filters rather than showing nothing", () => {
-    const onlyNight = [M({ id: "n", timesOfDay: ["night"], locationTypes: ["travel"] })];
-    const result = eligibleMissions(onlyNight, { now: at(9), locationType: "home" });
+    const onlyNight = [
+      M({ id: "n", timesOfDay: ["night"], locationTypes: ["travel"] }),
+    ];
+    const result = eligibleMissions(onlyNight, {
+      now: at(9),
+      locationType: "home",
+    });
     expect(result.length).toBeGreaterThan(0);
   });
 });
 
 describe("missionOfTheDay", () => {
   it("is stable on reload within the same time-of-day window (FR-1)", () => {
-    const lib = [M({ id: "a" }), M({ id: "b" }), M({ id: "c" }), M({ id: "d" })];
+    const lib = [
+      M({ id: "a" }),
+      M({ id: "b" }),
+      M({ id: "c" }),
+      M({ id: "d" }),
+    ];
     // Two morning hours on the same day must yield the same mission.
     const a = missionOfTheDay(lib, { now: at(8) });
     const b = missionOfTheDay(lib, { now: at(10) });
@@ -92,6 +102,44 @@ describe("missionOfTheDay", () => {
     const lib = [M({ id: "a" }), M({ id: "b" })];
     const chosen = missionOfTheDay(lib, { now: at(10), recentIds: ["a"] });
     expect(chosen?.id).toBe("b");
+  });
+});
+
+describe("favourite preference (SPEC-fav FR-F3/F4)", () => {
+  const lib = [M({ id: "a" }), M({ id: "b" }), M({ id: "c" }), M({ id: "d" })];
+
+  it("prefers an eligible favourite for the mission of the day", () => {
+    // With only "c" favourited, the day's pick must be "c" (the favoured subset of one).
+    const chosen = missionOfTheDay(lib, { now: at(10), favouriteIds: ["c"] });
+    expect(chosen?.id).toBe("c");
+  });
+
+  it("falls back to the full pool when no favourite is eligible (FR-F4)", () => {
+    // Favourite is tagged evening-only; at a morning hour it is not eligible.
+    const lib2 = [
+      M({ id: "morning", timesOfDay: ["morning"] }),
+      M({ id: "fav-evening", timesOfDay: ["evening"] }),
+    ];
+    const chosen = missionOfTheDay(lib2, {
+      now: at(8),
+      favouriteIds: ["fav-evening"],
+    });
+    expect(chosen?.id).toBe("morning");
+  });
+
+  it("prefers a different favourite for 'Another', not the current one", () => {
+    const next = anotherMission(
+      lib,
+      { now: at(10), favouriteIds: ["b", "d"] },
+      "b",
+    );
+    expect(next?.id).toBe("d");
+  });
+
+  it("behaves exactly as today when no favourites are set", () => {
+    const withFav = missionOfTheDay(lib, { now: at(10), favouriteIds: [] });
+    const without = missionOfTheDay(lib, { now: at(10) });
+    expect(withFav?.id).toBe(without?.id);
   });
 });
 
