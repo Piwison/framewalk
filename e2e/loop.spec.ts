@@ -72,3 +72,81 @@ test.describe("FrameWalk core loop", () => {
     }
   }
 });
+
+test.describe("Mission favouriting (SPEC-mission-favouriting)", () => {
+  test.beforeEach(async ({ page }) => {
+    // Start clean: favourites are localStorage-only, but Playwright's browser
+    // context can carry state across tests in the same worker.
+    await page.goto("/");
+    await page.evaluate(() => localStorage.removeItem("framewalk.favourites"));
+  });
+
+  test("saving the shown mission flips the toggle and persists across reload (FR-F1/F5)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const toggle = page.getByRole("button", {
+      name: /save this mission|saved — tap to remove/i,
+    });
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await expect(toggle).toHaveAccessibleName("Saved — tap to remove");
+
+    // Persistence check: the mission id landed in localStorage, no network call.
+    const stored = await page.evaluate(() =>
+      localStorage.getItem("framewalk.favourites"),
+    );
+    expect(stored).not.toBeNull();
+    expect(JSON.parse(stored ?? "[]")).toHaveLength(1);
+
+    // Reload — the same mission (deterministic within the time-of-day window,
+    // FR-1) should still show as saved (FR-F1/F5: survives offline/reload).
+    await page.reload();
+    const toggleAfterReload = page.getByRole("button", {
+      name: /save this mission|saved — tap to remove/i,
+    });
+    await expect(toggleAfterReload).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("un-saving removes the mission id and updates the control immediately (FR-F2)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const toggle = page.getByRole("button", {
+      name: /save this mission|saved — tap to remove/i,
+    });
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    const stored = await page.evaluate(() =>
+      localStorage.getItem("framewalk.favourites"),
+    );
+    expect(JSON.parse(stored ?? "[]")).toEqual([]);
+  });
+
+  for (const scheme of ["light", "dark"] as const) {
+    test(`no serious/critical axe violations with the favourite toggle present: / (${scheme})`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto("/");
+      await expect(
+        page.getByRole("button", {
+          name: /save this mission|saved — tap to remove/i,
+        }),
+      ).toBeVisible();
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+      const serious = results.violations.filter((v) =>
+        ["serious", "critical"].includes(v.impact ?? ""),
+      );
+      expect(serious, JSON.stringify(serious, null, 2)).toEqual([]);
+    });
+  }
+});
