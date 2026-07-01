@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FrameWalk — Remaining roadmap · design prototype</title>
+<style>
+  :root {
+    --paper:#fbfaf5; --paper-raised:#ffffff; --ink:#211f18; --ink-soft:#5d594d;
+    --ink-faint:#777262; --line:#e8e4d7; --line-strong:#d7d2c3; --accent:#c2702f;
+    --accent-soft:#f3e3d3; --on-ink:#fbfaf5; --danger:#9a3b2e; --focus:#2f6f8f;
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --text-xs:.8rem; --text-sm:.9rem; --text-base:1rem; --text-lg:1.25rem;
+    --text-xl:1.563rem; --text-2xl:1.953rem; --text-3xl:2.441rem;
+    --lead-tight:1.18; --lead-normal:1.5; --lead-prose:1.75; --track-label:.14em;
+    --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s6:1.5rem; --s8:2rem;
+    --s12:3rem; --s16:4rem; --s24:6rem;
+    --r-sm:.25rem; --r-md:.5rem; --r-lg:.75rem; --r-full:9999px;
+    --fast:140ms; --base:260ms; --ease:cubic-bezier(.2,0,0,1);
+  }
+  html[data-theme="dark"] {
+    --paper:#1b1a15; --paper-raised:#232219; --ink:#ece8dc; --ink-soft:#b8b3a3;
+    --ink-faint:#9a9485; --line:#322f27; --line-strong:#423e33; --accent:#d98a52;
+    --accent-soft:#3a2c1e; --on-ink:#1b1a15; --danger:#d98270; --focus:#6db3d4;
+  }
+  @media (prefers-reduced-motion: reduce){ :root{ --fast:0ms; --base:0ms; } }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:var(--text-base); line-height:var(--lead-normal);
+    -webkit-font-smoothing:antialiased; transition:background var(--base) var(--ease);
+  }
+  .serif{ font-family:var(--serif); }
+  .wrap{ max-width:64rem; margin:0 auto; padding:0 var(--s4); }
+  .measure{ max-width:40rem; }
+
+  /* top bar */
+  header.bar{
+    position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--paper) 88%,transparent);
+    backdrop-filter:saturate(1.1) blur(6px); border-bottom:1px solid var(--line);
+  }
+  .bar-in{ display:flex; align-items:center; justify-content:space-between; gap:var(--s4);
+    padding:var(--s3) var(--s4); max-width:64rem; margin:0 auto; }
+  .mark{ font-size:var(--text-xs); text-transform:uppercase; letter-spacing:var(--track-label);
+    color:var(--ink-faint); }
+  .toggle{ font:inherit; font-size:var(--text-sm); color:var(--ink-soft); background:transparent;
+    border:1px solid var(--line); border-radius:var(--r-full); padding:var(--s1) var(--s3);
+    cursor:pointer; transition:border-color var(--fast) var(--ease); }
+  .toggle:hover{ border-color:var(--line-strong); color:var(--ink); }
+  :focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:var(--r-sm); }
+
+  /* section rhythm */
+  section.item{ padding:var(--s16) 0; border-top:1px solid var(--line); }
+  section.item:first-of-type{ border-top:none; }
+  .eyebrow{ font-size:var(--text-xs); text-transform:uppercase; letter-spacing:var(--track-label);
+    color:var(--ink-faint); display:flex; gap:var(--s2); align-items:center; flex-wrap:wrap; }
+  .badge{ display:inline-block; border:1px solid var(--line-strong); border-radius:var(--r-full);
+    padding:0 var(--s2); font-size:var(--text-xs); letter-spacing:.04em; color:var(--ink-soft); }
+  .badge.p0{ color:var(--accent); border-color:var(--accent); }
+  h1.title{ font-family:var(--serif); font-weight:600; font-size:var(--text-3xl);
+    line-height:var(--lead-tight); margin:var(--s2) 0 0; letter-spacing:-.01em; }
+  h2.h{ font-family:var(--serif); font-weight:600; font-size:var(--text-2xl);
+    line-height:var(--lead-tight); margin:var(--s3) 0 0; }
+  .lede{ font-family:var(--serif); font-size:var(--text-lg); color:var(--ink-soft);
+    line-height:var(--lead-prose); margin:var(--s4) 0 0; }
+  .accent-rule{ width:2rem; height:3px; background:var(--accent); border-radius:var(--r-full);
+    margin:var(--s6) 0; }
+  .decision{ margin-top:var(--s4); padding:var(--s3) var(--s4); border-left:2px solid var(--accent);
+    background:var(--accent-soft); border-radius:0 var(--r-sm) var(--r-sm) 0;
+    font-size:var(--text-sm); color:var(--ink); }
+  .decision b{ font-weight:600; }
+  .grid2{ display:grid; gap:var(--s8); margin-top:var(--s8); }
+  @media(min-width:800px){ .grid2{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; } }
+  .note{ font-size:var(--text-sm); color:var(--ink-faint); margin-top:var(--s3); }
+
+  /* mock device / card language */
+  .mock{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:var(--s6); box-shadow:0 1px 1px rgba(33,31,24,.03); }
+  .mocklabel{ font-size:var(--text-xs); text-transform:uppercase; letter-spacing:var(--track-label);
+    color:var(--ink-faint); margin-bottom:var(--s3); }
+  .card{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--r-md);
+    padding:var(--s4); }
+  .card + .card{ margin-top:var(--s4); }
+  .card h3{ font-size:var(--text-base); font-weight:600; margin:0; color:var(--ink); }
+  .card p{ margin:var(--s2) 0 0; color:var(--ink-soft); font-size:var(--text-sm);
+    line-height:var(--lead-normal); }
+
+  .btn{ font:inherit; font-size:var(--text-sm); cursor:pointer; border-radius:var(--r-full);
+    padding:var(--s2) var(--s4); transition:all var(--fast) var(--ease); }
+  .btn-primary{ background:var(--ink); color:var(--on-ink); border:1px solid var(--ink); }
+  .btn-quiet{ background:transparent; color:var(--ink); border:1px solid var(--line-strong); }
+  .btn-quiet:hover{ border-color:var(--ink); }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border:none; padding:var(--s1) 0; }
+  .btn-ghost:hover{ color:var(--ink); }
+  .status{ margin-top:var(--s3); font-size:var(--text-sm); color:var(--ink-soft);
+    min-height:2.4em; line-height:var(--lead-normal); transition:opacity var(--fast) var(--ease); }
+  .status b{ color:var(--ink); font-weight:600; }
+  .status.bad{ color:var(--danger); }
+
+  /* photo stand-ins (muted solids, no stock gradients) */
+  .photo{ background:var(--line); border-radius:var(--r-sm); aspect-ratio:4/3; width:100%;
+    display:block; }
+  .p-a{ background:#8f8674; } .p-b{ background:#6e7a6a; } .p-c{ background:#a98a5f; }
+  .p-d{ background:#7c6f78; } .p-e{ background:#5f6f7a; }
+  html[data-theme="dark"] .p-a{ background:#5b5749; } html[data-theme="dark"] .p-b{ background:#4a5347; }
+  html[data-theme="dark"] .p-c{ background:#6e5a3c; } html[data-theme="dark"] .p-d{ background:#544a52; }
+  html[data-theme="dark"] .p-e{ background:#3f4a52; }
+
+  /* roll grid */
+  .rollgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s3); margin-top:var(--s4); }
+  .frame{ display:flex; flex-direction:column; gap:var(--s2); }
+  .frame .photo{ aspect-ratio:1/1; }
+  .frame .photo.cover{ box-shadow:0 0 0 2px var(--line-strong); }
+  .chip{ align-self:flex-start; font-size:var(--text-sm); border-radius:var(--r-full);
+    padding:var(--s1) var(--s3); border:1px solid var(--line); color:var(--ink-soft); background:transparent; }
+  .chip.cover{ background:var(--accent-soft); color:var(--accent); border-color:var(--accent); }
+  .makecover{ font:inherit; font-size:var(--text-sm); background:transparent; border:none;
+    color:var(--ink-soft); cursor:pointer; padding:var(--s1) 0; text-align:left; }
+  .makecover:hover{ color:var(--ink); }
+  .live{ margin-top:var(--s3); font-size:var(--text-sm); color:var(--ink-faint); }
+
+  /* landing mock */
+  .landing{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:var(--s12) var(--s6); }
+  .landing .brand{ font-size:var(--text-xs); text-transform:uppercase; letter-spacing:var(--track-label);
+    color:var(--ink-faint); }
+  .landing h3{ font-family:var(--serif); font-weight:600; font-size:var(--text-3xl);
+    line-height:var(--lead-tight); margin:var(--s4) 0 0; letter-spacing:-.01em; }
+  .landing .sub{ font-family:var(--serif); font-size:var(--text-lg); color:var(--ink-soft);
+    line-height:var(--lead-prose); margin:var(--s4) 0 0; max-width:34rem; }
+  .landing .cta{ display:inline-block; margin-top:var(--s6); background:var(--ink); color:var(--on-ink);
+    border-radius:var(--r-full); padding:var(--s3) var(--s6); font-size:var(--text-sm); }
+  .landing .fine{ font-size:var(--text-sm); color:var(--ink-faint); margin-top:var(--s3); }
+  .beat{ padding:var(--s8) 0; border-top:1px solid var(--line); }
+  .beat h4{ font-family:var(--serif); font-weight:600; font-size:var(--text-xl); margin:0; }
+  .beat p{ color:var(--ink-soft); line-height:var(--lead-prose); margin:var(--s2) 0 0; max-width:34rem; }
+  .promise{ text-align:center; padding:var(--s12) 0 0; }
+  .promise .r{ width:2rem; height:3px; background:var(--accent); border-radius:var(--r-full); margin:0 auto var(--s6); }
+  .promise p{ font-family:var(--serif); font-size:var(--text-xl); color:var(--ink); line-height:var(--lead-prose);
+    max-width:32rem; margin:0 auto; }
+
+  /* desktop/mat mock */
+  .diarycard{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--r-lg);
+    overflow:hidden; }
+  .diarycard.mat{ padding:var(--s3); }
+  .diarycard.mat .photo{ border:1px solid var(--line); aspect-ratio:3/2; }
+  .diarycard .body{ padding:var(--s4); }
+  .diarycard.mat .body{ padding:var(--s4) var(--s1) var(--s1); }
+  .diarycard .meta{ font-size:var(--text-sm); color:var(--ink-faint); }
+  .diarycard .story{ font-family:var(--serif); font-size:var(--text-lg); color:var(--ink);
+    line-height:var(--lead-prose); margin:var(--s2) 0 0; }
+
+  /* concept + parked */
+  .concept{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--r-md);
+    padding:var(--s4); }
+  .parked{ display:grid; gap:var(--s3); margin-top:var(--s6); }
+  @media(min-width:700px){ .parked{ grid-template-columns:1fr 1fr; } }
+  .parked .row{ border:1px dashed var(--line-strong); border-radius:var(--r-md); padding:var(--s3) var(--s4); }
+  .parked .row .k{ font-weight:600; font-size:var(--text-sm); color:var(--ink); }
+  .parked .row .v{ font-size:var(--text-sm); color:var(--ink-faint); margin-top:var(--s1); }
+
+  ol.slate{ counter-reset:s; list-style:none; padding:0; margin:var(--s6) 0 0; }
+  ol.slate li{ counter-increment:s; position:relative; padding:var(--s3) 0 var(--s3) var(--s8);
+    border-top:1px solid var(--line); }
+  ol.slate li:before{ content:counter(s); position:absolute; left:0; top:var(--s3);
+    width:1.6rem; height:1.6rem; border-radius:var(--r-full); border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center; font-size:var(--text-sm); color:var(--ink-soft); }
+  ol.slate li b{ color:var(--ink); }
+  footer{ padding:var(--s16) 0 var(--s24); border-top:1px solid var(--line); color:var(--ink-faint);
+    font-size:var(--text-sm); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <span class="mark">FrameWalk · remaining-roadmap prototype</span>
+    <button class="toggle" id="themeBtn" aria-label="Toggle light and dark">◐ theme</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- INTRO -->
+  <section class="item" aria-labelledby="intro-h">
+    <p class="eyebrow">For review · not built yet</p>
+    <h1 class="title" id="intro-h">Six ideas for what comes after v1.1.</h1>
+    <p class="lede measure">The loop and “it sticks” are shipped. This is the whole remaining
+      board, judged on one question — does it help someone finish a walk they’ll come back for —
+      then designed in the Ma voice. Toggle light/dark, top-right. Click the mockups; a few are
+      live. Nothing here is decided: tell me what to keep.</p>
+    <div class="accent-rule"></div>
+    <p class="eyebrow">Recommended order — recovery → decoration → growth</p>
+    <ol class="slate">
+      <li><b>Diary import (P0).</b> Export exists; there’s no way back in. A lost diary ends the habit. <span class="badge p0">new · found in code</span></li>
+      <li><b>iOS device pass (P0).</b> Prove the promise on the runtime most likely to break it. <span class="badge">your device</span></li>
+      <li><b>Rolls Phase 2 — pick cover (P1).</b> Let the best frame lead the card. <span class="badge">cheap</span></li>
+      <li><b>Landing page, Ma voice (P1).</b> The front door; growth is gated on it.</li>
+      <li><b>Desktop + thumbnail mat (P1).</b> Make diary-review on a laptop feel considered. <span class="badge">polish</span></li>
+      <li><b>Small public beta (P1).</b> Only after 1, 2 &amp; 4 are green.</li>
+    </ol>
+  </section>
+
+  <!-- 1. IMPORT -->
+  <section class="item" aria-labelledby="imp-h">
+    <p class="eyebrow"><span class="badge p0">P0</span> 1 · Diary import <span class="badge">no schema change</span></p>
+    <h2 class="h" id="imp-h">Bring a diary back from a file.</h2>
+    <p class="lede measure">Settings already lets you export. This is the other half of the promise:
+      restore. It merges gently — add what’s new, skip what’s already here — so there’s never a
+      scary “overwrite?” dialog. <b>Nothing is destroyed, so nothing needs confirming.</b></p>
+    <div class="decision"><b>Your call:</b> merge-by-id only (recommended) — or also a “replace my
+      whole diary” option? I’d hold replace-all for later.</div>
+
+    <div class="grid2">
+      <div class="mock">
+        <div class="mocklabel">Settings · storage</div>
+        <div class="card">
+          <h3>Export your diary</h3>
+          <p>Save a single file (stories + thumbnails) to your device. No upload.</p>
+          <button class="btn btn-primary" style="margin-top:var(--s3)" disabled>Export as file</button>
+        </div>
+        <div class="card">
+          <h3>Restore from a file</h3>
+          <p>Bring a diary back from a file you exported. Merges gently — nothing is overwritten.</p>
+          <button class="btn btn-quiet" id="impBtn" style="margin-top:var(--s3)">Restore from a file</button>
+          <div class="status" id="impStatus" aria-live="polite">Bring a diary back from a file you exported. Merges gently — nothing is overwritten.</div>
+        </div>
+      </div>
+      <div>
+        <h2 class="h" style="font-size:var(--text-lg)">The four states</h2>
+        <p class="note">Click <b>Restore from a file</b> to cycle through them — idle → reading →
+          restored → already-up-to-date → a bad file. Success is marked with a quiet full stop, not
+          a celebration; a bad file declines calmly and changes nothing.</p>
+        <p class="note">Merge-by-id makes re-importing the same file a no-op. Images ride in as the
+          same <code>data:</code> URLs export writes, converted back to on-device blobs. No network,
+          ever — the CSP already forbids it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. PICK COVER -->
+  <section class="item" aria-labelledby="cov-h">
+    <p class="eyebrow"><span class="badge">P1</span> 2 · Rolls Phase 2 — pick cover <span class="badge">no migration</span></p>
+    <h2 class="h" id="cov-h">Let the best frame lead the roll.</h2>
+    <p class="lede measure">A roll saves with the first kept frame as its cover — but the strongest
+      frame isn’t always first. Open a roll’s grid and tap <b>Make cover</b> on any frame. The one
+      wearing the amber <em>Cover</em> tag is the current cover.</p>
+    <div class="decision"><b>Your call:</b> cover-pick only (recommended). Reorder means drag handles —
+      the “editor chrome” Ma avoids — so I’d park it.</div>
+
+    <div class="grid2">
+      <div class="mock">
+        <div class="mocklabel">Diary · a roll, expanded</div>
+        <div class="card" style="background:var(--paper)">
+          <div class="meta" style="font-size:var(--text-sm); color:var(--ink-faint)">Jun 28 · The colour of the day — red · 5 frames</div>
+          <div class="rollgrid" id="rollGrid" role="group" aria-label="Choose a cover frame"></div>
+          <div class="live" id="coverLive" aria-live="polite"></div>
+        </div>
+      </div>
+      <div>
+        <h2 class="h" style="font-size:var(--text-lg)">How it reads</h2>
+        <p class="note">The current cover carries a small amber <em>Cover</em> chip <b>and</b> a
+          hairline ring — never colour alone, so it passes contrast rules. Every other frame offers a
+          quiet <em>Make cover</em> ghost button, matching the card’s existing verbs.</p>
+        <p class="note">Single-frame keepers show no control at all. Choosing a cover is a one-line
+          <code>coverIndex</code> update — no new field, no migration, no story change.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. LANDING -->
+  <section class="item" aria-labelledby="land-h">
+    <p class="eyebrow"><span class="badge">P1</span> 3 · Landing page — the Ma voice</p>
+    <h2 class="h" id="land-h">The front door.</h2>
+    <p class="lede measure">A single, unhurried scroll — a page of a well-set book, not a SaaS hero.
+      The serif leads, whitespace does the work, the accent appears exactly once. One door into the app.</p>
+    <div class="decision"><b>Your call:</b> the route (I suggest <code>/welcome</code>, leaving
+      <code>/</code> as Today) and the headline wording below.</div>
+
+    <div class="landing" style="margin-top:var(--s8)">
+      <div class="brand">FrameWalk · 街拍日課</div>
+      <h3>A reason to go shoot.<br/>The photos stay yours.</h3>
+      <p class="sub">A quiet companion for a photo walk: a small mission to pull you outside, a gentle
+        way to approach a frame, a fast look-back, and a private diary of the walks worth keeping.</p>
+      <span class="cta">Start today →</span>
+      <div class="fine">No account. Nothing leaves your device. Free.</div>
+
+      <div class="beat">
+        <h4>A reason to shoot</h4>
+        <p>Open the app and it offers today’s mission — a colour, a shape, a kind of light. Not a task.
+          An invitation to go look.</p>
+      </div>
+      <div class="beat">
+        <h4>A light cull</h4>
+        <p>Back home, glance through what you shot and keep the few that matter. Fast, kind, no scoring,
+          no shame in letting the rest go.</p>
+      </div>
+      <div class="beat">
+        <h4>A diary that tells the story</h4>
+        <p>Keepers become a diary of walks — a line of story, a roll of frames. Yours to revisit, yours
+          to keep.</p>
+      </div>
+
+      <div class="promise">
+        <div class="r"></div>
+        <p>No AI looking at your photos. No account, no server, no cost. It works offline, and your
+          diary lives on your device — you can carry it out as a file whenever you like.</p>
+        <div style="margin-top:var(--s8)"><span class="cta">Start today →</span></div>
+        <div class="brand" style="margin-top:var(--s6)">FrameWalk · 街拍日課</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. DESKTOP + MAT -->
+  <section class="item" aria-labelledby="desk-h">
+    <p class="eyebrow"><span class="badge">P1</span> 4 · Desktop treatment + thumbnail mat <span class="badge">polish · 2 new tokens</span></p>
+    <h2 class="h" id="desk-h">Make diary-review on a laptop feel considered.</h2>
+    <p class="lede measure">The walk stays a phone moment — Today, Mission, Cull, Story stay one
+      centered column. Only the <b>Diary</b> earns wide-screen width, and each photo sits in a quiet
+      paper <em>mat</em> instead of bleeding to the card edge.</p>
+    <div class="decision"><b>Your call:</b> add two named tokens (<code>--measure-diary</code>,
+      <code>--mat-diary</code>) — a design-token change, so your sign-off — and hold at a single wide
+      column (no two-column masonry). Both recommended.</div>
+
+    <div class="grid2">
+      <div>
+        <p class="mocklabel">Today · unchanged (still one thumb)</p>
+        <div class="diarycard" style="max-width:20rem">
+          <div class="photo p-b"></div>
+          <div class="body">
+            <div class="meta">today’s mission</div>
+            <div class="story" style="font-size:var(--text-xl)">The decisive gesture, waist-level</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="mocklabel">Diary · wider measure + matted photo</p>
+        <div class="diarycard mat">
+          <div class="photo p-c"></div>
+          <div class="body">
+            <div class="meta">Jun 28 · The colour of the day — red · 5 frames</div>
+            <div class="story">The bus stop bench, repainted overnight. I almost missed it.</div>
+          </div>
+        </div>
+        <p class="note">Photo held in a <code>--mat-diary</code> inset with an inner hairline — a
+          mounted print, not a banner. On wide screens the column grows to <code>--measure-diary</code>,
+          calm, never edge-to-edge. Falls back to the mobile single column at 200% zoom.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 & 6 CONCEPTS -->
+  <section class="item" aria-labelledby="conc-h">
+    <p class="eyebrow">5 &amp; 6 · No mockup — process, not a screen</p>
+    <h2 class="h" id="conc-h">The two that aren’t UI.</h2>
+    <div class="grid2">
+      <div class="concept">
+        <p class="eyebrow"><span class="badge p0">P0</span> iOS device pass</p>
+        <h3 class="serif" style="font-size:var(--text-lg); margin:var(--s2) 0 0">Prove it on the phone.</h3>
+        <p class="note">Your task, on your device: install to the home screen → airplane mode → Today,
+          a mission, and the diary load; camera-roll import works from the icon; <b>export a diary then
+          import it back</b> (validates idea 1 on real iOS). The trust gate before any beta.</p>
+      </div>
+      <div class="concept">
+        <p class="eyebrow"><span class="badge">P1</span> Small public beta</p>
+        <h3 class="serif" style="font-size:var(--text-lg); margin:var(--s2) 0 0">Invite people last.</h3>
+        <p class="note">Sequenced after import ships, the iOS pass is green, and the landing page is
+          live. Beta before recovery exists would burn the first users on a diary that can’t be
+          restored.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARKED -->
+  <section class="item" aria-labelledby="park-h">
+    <p class="eyebrow">Deliberately parked — restraint is the point</p>
+    <h2 class="h" id="park-h">What I’m recommending we <em>don’t</em> build now.</h2>
+    <div class="parked">
+      <div class="row"><div class="k">Rolls: add-frames / multiple rolls per walk</div><div class="v">New editing + multi-select surface against a rarely-hit need. Hold the Phase 1 line.</div></div>
+      <div class="row"><div class="k">APG arrow-key nav for radiogroups</div><div class="v">AA already met via Tab. Fold into any future radiogroup change, not its own push.</div></div>
+      <div class="row"><div class="k">AI — mission enrichment · cull assist · PoseCue</div><div class="v">Gated on “loop loved first.” No signal yet; each adds deps, cost, and privacy surface. Needs your sign-off.</div></div>
+      <div class="row"><div class="k">End-to-end encrypted sync</div><div class="v">Accounts + backend + breaks “$0, no accounts.” Diary import covers ~80% of the felt need at ~5% of the cost.</div></div>
+      <div class="row"><div class="k">Zine / print export</div><div class="v">On-thesis, but a reward <em>after</em> the habit, not a driver of it. Strong v1.3.</div></div>
+      <div class="row"><div class="k">Group “walk together”</div><div class="v">Reintroduces the comparison surface the product exists to avoid. High taste-risk.</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>What I need from you:</b> confirm the slate (1–5 to build, hold 6), and the four small
+      decisions — merge-by-id only · cover-pick only · <code>/welcome</code> route + headline ·
+      the two new tokens. On your confirm I’ll write a SPEC per item and route each through build →
+      QA → review, one at a time.</p>
+    <p class="note">FrameWalk · 街拍日課 — this prototype is static and self-contained; it renders no
+      network calls and touches no app code.</p>
+  </footer>
+</main>
+
+<script>
+  // theme toggle
+  const root = document.documentElement;
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  // import state demo
+  const impBtn = document.getElementById('impBtn');
+  const impStatus = document.getElementById('impStatus');
+  const impBtnLabel = impBtn;
+  const states = [
+    { btn:'Reading…', disabled:true, html:'Reading your file, all on this device.', bad:false },
+    { btn:'Restore from a file', disabled:false, html:'<b>42 entries restored.</b> Your diary is whole again.', bad:false },
+    { btn:'Restore from a file', disabled:false, html:'<b>Already up to date.</b> Every walk in that file is already here.', bad:false },
+    { btn:'Restore from a file', disabled:false, html:'<b>18 entries restored, 24 already here.</b>', bad:false },
+    { btn:'Restore from a file', disabled:false, html:"That doesn’t look like a FrameWalk diary file.", bad:true },
+    { btn:'Restore from a file', disabled:false, html:'Bring a diary back from a file you exported. Merges gently — nothing is overwritten.', bad:false },
+  ];
+  let si = -1;
+  impBtn.addEventListener('click', () => {
+    si = (si + 1) % states.length;
+    const s = states[si];
+    impStatus.style.opacity = '0';
+    setTimeout(() => {
+      impBtn.textContent = s.btn;
+      impBtn.disabled = s.disabled;
+      impStatus.innerHTML = s.html;
+      impStatus.className = 'status' + (s.bad ? ' bad' : '');
+      impStatus.style.opacity = '1';
+      if (s.disabled) setTimeout(() => impBtn.click(), 650); // auto-advance out of "Reading…"
+    }, 120);
+  });
+
+  // pick-cover demo
+  const grid = document.getElementById('rollGrid');
+  const coverLive = document.getElementById('coverLive');
+  const tones = ['p-a','p-b','p-c','p-d','p-e'];
+  let cover = 0;
+  function renderRoll() {
+    grid.innerHTML = '';
+    tones.forEach((t, i) => {
+      const f = document.createElement('div');
+      f.className = 'frame';
+      const isCover = i === cover;
+      f.innerHTML =
+        '<span class="photo ' + t + (isCover ? ' cover' : '') + '" role="img" aria-label="Frame ' + (i+1) + ' of 5"></span>' +
+        (isCover
+          ? '<span class="chip cover">Cover</span><span style="position:absolute;left:-9999px">Current cover</span>'
+          : '<button class="makecover" aria-label="Make frame ' + (i+1) + ' of 5 the cover">Make cover</button>');
+      if (!isCover) f.querySelector('button').addEventListener('click', () => {
+        cover = i; coverLive.textContent = 'Cover set to frame ' + (i+1) + ' of 5.'; renderRoll();
+      });
+      grid.appendChild(f);
+    });
+  }
+  renderRoll();
+</script>
+</body>
+</html>
