@@ -113,3 +113,16 @@ skill; `frontend-design` is the official production-UI skill.
   fake-indexeddb. (3) The two browser MCPs default to a `chrome`/`stable` channel that isn't
   installed — drive the pre-installed Chromium at `/opt/pw-browsers/chromium-1194/...` via a
   Playwright `executablePath` script instead.
+- _2026-07-01 · Full agent team built + first feature shipped through it._ Added the missing
+  product roles (`product-manager`, `product-designer`, `qa-engineer`), reframed
+  `ai-product-builder` as tech-lead/orchestrator, and wired a slash-command workflow
+  (`/pm /design /architect /build /qa /review /ship /feature`) + auto-loading `.claude/rules/`.
+  Then drove **mission favouriting** (P0, `localStorage`-backed — `lib/favourites.ts`,
+  `ui/favourite-toggle.tsx`, `favouriteIds` preference in `mission-select.ts`) through the whole
+  team: PM (gate 1) → design (Ma bookmark) → build → QA → 3-way review (unanimous approve).
+  Gate GREEN: tsc + vitest 36/36 + `next build` + Playwright/axe 72/72. Guardrails learned:
+  (1) toggling a favourite must NOT reshuffle the current card — feed favourites into selection
+  via a **ref** (not effect deps), set synchronously before `ready` flips so the initial pick
+  sees them with no race. (2) Reviewers verify; QA authors tests — keep the boundary (QA flags
+  drift, doesn't fix it; reviewer approves, doesn't write). (3) A favourite is UI preference, not
+  diary content → `localStorage`, not Dexie: no migration, no sign-off gate, no export change.

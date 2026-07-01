@@ -35,8 +35,12 @@
 ## 🗓 Later (v1.1 "it sticks" — still no AI)
 5. ✅ **Weekly reflection** shipped — `lib/reflection.ts` + `ReflectionCard` on Diary (no AI,
    on-device, vitest-covered).
-   - ▶ **Mission favouriting** — in build (P0, `localStorage`-backed; gate 1 approved
-     2026-07-01, `SPEC-mission-favouriting.md`). Richer diary filters still open.
+   - ✅ **Mission favouriting** shipped (2026-07-01) — a quiet bookmark toggle on Today;
+     favourites gently steer `missionOfTheDay` + "Another" (fallback ladder intact).
+     `localStorage`-backed (`lib/favourites.ts`, no schema change), on-device.
+     `SPEC-mission-favouriting.md` FR-F1..F8. Built via the full agent team (PM → design →
+     build → QA → 3-way review, unanimous approve). Gate green: tsc + vitest 36/36 +
+     Playwright/axe 72/72. Richer diary filters still open.
 5b. ✅ **Rolls (Phase 1)** shipped — multi-image diary entries grouped during the cull
    (`SPEC-rolls.md`, FR-R1..R5). Dexie v2 non-destructive migration (existing keepers → rolls
    of 1), Compose step (one-roll vs each-on-its-own), roll Diary card (cover + count badge +
