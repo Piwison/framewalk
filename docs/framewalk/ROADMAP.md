@@ -40,7 +40,9 @@
      `localStorage`-backed (`lib/favourites.ts`, no schema change), on-device.
      `SPEC-mission-favouriting.md` FR-F1..F8. Built via the full agent team (PM → design →
      build → QA → 3-way review, unanimous approve). Gate green: tsc + vitest 36/36 +
-     Playwright/axe 72/72. Richer diary filters still open.
+     Playwright/axe 72/72.
+   - ▶ **Richer diary filters** — in build (P0: Theme + With-people single-select chips,
+     client-only, threshold-gated; gate 1 approved 2026-07-01, `SPEC-diary-filters.md`).
 5b. ✅ **Rolls (Phase 1)** shipped — multi-image diary entries grouped during the cull
    (`SPEC-rolls.md`, FR-R1..R5). Dexie v2 non-destructive migration (existing keepers → rolls
    of 1), Compose step (one-roll vs each-on-its-own), roll Diary card (cover + count badge +
