@@ -126,3 +126,20 @@ skill; `frontend-design` is the official production-UI skill.
   sees them with no race. (2) Reviewers verify; QA authors tests — keep the boundary (QA flags
   drift, doesn't fix it; reviewer approves, doesn't write). (3) A favourite is UI preference, not
   diary content → `localStorage`, not Dexie: no migration, no sign-off gate, no export change.
+- _2026-07-01 · Richer diary filters shipped (closes v1.1 "it sticks")._ Single-select chip
+  bar on the Diary (All + user-derived theme chips + With people), reusing the Today radiogroup
+  verbatim. Pure `lib/diary-filter.ts` (threshold ≥6 keepers/≥2 themes; `filterKeepers` reuses
+  the keeper↔mission join from `reflection.ts`; free-walk keepers only under All); wired into
+  `diary-list.tsx`. Built through the full team; the 3-way review caught a real **P1**: the
+  empty-state copy was hardcoded to the "With people" line but rendered for *any* empty filter —
+  reachable by removing the last keeper of a selected theme. Fix: branch the copy on
+  `filter.kind` + a component test for that exact remove-to-empty path. Guardrails: (1) filtering
+  is a *view* over already-loaded `rows` — object-URL create/revoke stays in the mount effect
+  and `remove()`, never coupled to the filter, so no leak/premature-revoke. (2) Reflection is
+  whole-diary truth: the filter state must never reach `ReflectionCard` (structural, e2e-asserted
+  byte-for-byte). (3) Derived theme chips can still empty out after a `Remove`, so empty-state
+  copy must match the *active lens*, not assume one. Gate green: tsc + vitest 53/53 +
+  Playwright/axe 84/84. Harness note: interactive permission prompts (`git push`, AskUserQuestion,
+  ExitPlanMode) intermittently fail with "permission stream closed" — split compound git calls
+  (commit separately from push) and retry; set `git config user.email noreply@anthropic.com` /
+  `user.name Claude` so commits aren't flagged Unverified.

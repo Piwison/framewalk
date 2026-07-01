@@ -41,8 +41,13 @@
      `SPEC-mission-favouriting.md` FR-F1..F8. Built via the full agent team (PM → design →
      build → QA → 3-way review, unanimous approve). Gate green: tsc + vitest 36/36 +
      Playwright/axe 72/72.
-   - ▶ **Richer diary filters** — in build (P0: Theme + With-people single-select chips,
-     client-only, threshold-gated; gate 1 approved 2026-07-01, `SPEC-diary-filters.md`).
+   - ✅ **Richer diary filters** shipped (2026-07-01) — a single-select chip bar on the Diary
+     (All + user-derived theme chips + With people), reusing the Today radiogroup pattern.
+     Threshold-gated (≥6 keepers, ≥2 themes), calm per-filter empty-states, view-only, no schema
+     change; Reflection tallies untouched. `lib/diary-filter.ts`, `SPEC-diary-filters.md`
+     FR-DF1..DF10. Built via the full team (PM → design → build → QA → 3-way review; one P1
+     — theme empty-state copy — caught and fixed). Gate green: tsc + vitest 53/53 +
+     Playwright/axe 84/84. **This closes v1.1 "it sticks".**
 5b. ✅ **Rolls (Phase 1)** shipped — multi-image diary entries grouped during the cull
    (`SPEC-rolls.md`, FR-R1..R5). Dexie v2 non-destructive migration (existing keepers → rolls
    of 1), Compose step (one-roll vs each-on-its-own), roll Diary card (cover + count badge +
