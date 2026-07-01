@@ -183,6 +183,48 @@ describe("DiaryList filter bar above threshold (FR-DF2, DF3, DF4, DF5, DF6, DF7)
     expect(screen.getByText(/no frames with people yet/i)).toBeInTheDocument();
   });
 
+  it("shows the theme empty-state copy (not the people copy) when a selected theme loses its last keeper (FR-DF7)", async () => {
+    // "shadow" is carried only by first-light-edges, so removing k1 empties that theme
+    // while ≥6 keepers / ≥2 themes remain — the bar stays, the filter is now empty.
+    allKeepersMock.mockResolvedValue([
+      K({ id: "k1", missionId: "first-light-edges", createdAt: 1 }), // sole "shadow"
+      K({ id: "k2", missionId: "blue-hour-warmth", createdAt: 2 }),
+      K({ id: "k3", missionId: "blue-hour-warmth", createdAt: 3 }),
+      K({ id: "k4", missionId: "the-colour-of-the-day", createdAt: 4 }),
+      K({ id: "k5", missionId: "negative-space-walk", createdAt: 5 }),
+      K({ id: "k6", missionId: "negative-space-walk", createdAt: 6 }),
+      K({ id: "k7", missionId: "the-colour-of-the-day", createdAt: 7 }),
+    ]);
+
+    render(<DiaryList />);
+    const group = await screen.findByRole("radiogroup", {
+      name: /filter diary/i,
+    });
+
+    const shadowChip = within(group).getByRole("radio", {
+      name: /show keepers themed shadow/i,
+    });
+    fireEvent.click(shadowChip);
+    await waitFor(() => expect(cardCount()).toBe(1));
+
+    // Remove the sole shadow keeper → the active theme filter now matches nothing.
+    fireEvent.click(screen.getByRole("button", { name: /remove keeper/i }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/nothing under this thread just now/i),
+      ).toBeInTheDocument(),
+    );
+    // The people-specific copy must NOT be shown for a theme filter (the P1 bug).
+    expect(
+      screen.queryByText(/no frames with people yet/i),
+    ).not.toBeInTheDocument();
+    // Bar stays so the user can return to "All".
+    expect(
+      screen.getByRole("radiogroup", { name: /filter diary/i }),
+    ).toBeInTheDocument();
+  });
+
   it('"All" restores the full list after a theme narrows it', async () => {
     allKeepersMock.mockResolvedValue(ABOVE_THRESHOLD_KEEPERS);
 

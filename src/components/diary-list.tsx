@@ -101,6 +101,11 @@ export function DiaryList() {
     filterKeepers(keepers, MISSIONS, filter).map((k) => k.id),
   );
   const visibleRows = rows.filter((r) => visibleIds.has(r.keeper.id));
+  // Empty-state copy matches the active lens (design spec §4). "All" can't be empty here.
+  const emptyLine =
+    filter.kind === "people"
+      ? "No frames with people yet — they’ll gather here when you walk toward them."
+      : "Nothing under this thread just now.";
 
   return (
     <div>
@@ -139,10 +144,7 @@ export function DiaryList() {
 
       {visibleRows.length === 0 ? (
         <div className="rounded-lg border border-line bg-paper-raised p-8 text-center">
-          <p className="font-serif text-lg text-ink">
-            No frames with people yet — they&rsquo;ll gather here when you walk
-            toward them.
-          </p>
+          <p className="font-serif text-lg text-ink">{emptyLine}</p>
         </div>
       ) : (
         <ul className="space-y-6">
