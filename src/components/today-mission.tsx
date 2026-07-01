@@ -37,6 +37,9 @@ export function TodayMission() {
 
   useEffect(() => {
     let active = true;
+    // Set the ref synchronously here, *before* `setReady(true)` fires (only after the
+    // async servedLog resolves below). The selection effect is gated on `ready`, so the
+    // initial missionOfTheDay pick is guaranteed to see the loaded favourites — no race.
     const favs = readFavourites();
     favIdsRef.current = favs;
     setFavouriteIds(favs);

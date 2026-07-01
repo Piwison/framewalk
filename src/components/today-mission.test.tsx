@@ -73,4 +73,23 @@ describe("TodayMission favourite toggle (SPEC-mission-favouriting FR-F1/F2/F6)",
     const titleAfterUnmark = await screen.findByRole("heading", { level: 2 });
     expect(titleAfterUnmark.textContent).toBe(missionTitle);
   });
+
+  it("prefers a pre-saved favourite for the initial mission (FR-F3, ref→selection wiring)", async () => {
+    // `small-life-at-home` is eligible at every time of day, so once it's the only
+    // favourite the preference must surface it regardless of when the test runs.
+    // This exercises the favIdsRef → missionOfTheDay path at the component level,
+    // not just the pure selection unit — the integration code review flagged.
+    localStorage.setItem(
+      FAVOURITES_KEY,
+      JSON.stringify(["small-life-at-home"]),
+    );
+
+    render(<TodayMission />);
+
+    const title = await screen.findByRole("heading", { level: 2 });
+    expect(title.textContent).toBe("The room you stopped seeing");
+    // The shown mission is the favourite, so its toggle is already marked on load.
+    const toggle = await findFavouriteToggle();
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+  });
 });
