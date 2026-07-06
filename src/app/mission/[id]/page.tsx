@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { findMission } from "@/lib/mission-select";
 import { MISSIONS } from "@/lib/missions";
 import { APPROACH_SCRIPTS, ETHICS_SPINE } from "@/lib/approach";
+import { roman } from "@/lib/roman";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { primaryAction } from "@/components/ui/action";
@@ -26,20 +27,38 @@ export default async function MissionPage({
         ← Today
       </Link>
 
-      <div className="mt-4 mb-3 flex flex-wrap gap-2">
-        <Chip>{mission.difficulty}</Chip>
-        {mission.involvesPeople ? <Chip>with people</Chip> : null}
+      {/* Same plate eyebrow as Today, so the detail page reads as the plate itself. */}
+      <div className="mt-6 flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
+        <span>
+          Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
+        </span>
+        <span aria-hidden="true">·</span>
+        <span>{mission.difficulty}</span>
+        {mission.involvesPeople ? (
+          <>
+            <span aria-hidden="true">·</span>
+            <span>with people</span>
+          </>
+        ) : null}
       </div>
 
       <h1
         id="mission-title"
-        className="font-serif text-3xl font-semibold leading-(--leading-tight) text-ink"
+        className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink"
       >
         {mission.title}
       </h1>
-      <p className="mt-4 font-serif text-lg leading-(--leading-prose) text-ink-soft">
+      <div className="mt-5 h-px w-10 bg-line-strong" />
+      <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
         {mission.invitation}
       </p>
+
+      {/* Themes as wall labels — the vocabulary the weekly reflection tallies. */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        {mission.themes.map((theme) => (
+          <Chip key={theme}>{theme}</Chip>
+        ))}
+      </div>
 
       {mission.involvesPeople ? (
         <section aria-labelledby="approach-heading" className="mt-8 space-y-4">

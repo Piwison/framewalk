@@ -2,12 +2,14 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.describe("FrameWalk core loop", () => {
-  test("Today shows a mission and 'Another' changes it", async ({ page }) => {
+  test("Today shows a mission and 'another plate' changes it", async ({
+    page,
+  }) => {
     await page.goto("/");
     const title = page.getByRole("heading", { level: 2 });
     await expect(title).toBeVisible();
     const first = (await title.textContent())?.trim() ?? "";
-    await page.getByRole("button", { name: "Another" }).click();
+    await page.getByRole("button", { name: "another plate" }).click();
     await expect(title).not.toHaveText(first);
   });
 
