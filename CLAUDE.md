@@ -97,3 +97,16 @@ skill; `frontend-design` is the official production-UI skill.
   (install via desktop UI — agents can't install plugins from a session). Guardrail: adding a
   required field to `Mission` (`themes`) means every Mission-builder in tests needs it —
   updated the `mission-select.test.ts` helper so `tsc`/`vitest` stay green.
+- _2026-07-06 · Monograph restyle: two review-caught P1s._ (1) `package-lock.json` was out
+  of sync with `package.json` (devDep bumps without a lock regen) — `npm ci` failed locally
+  and would break CI; re-synced via `npm install`. Guardrail: after any dependency edit, run
+  `npm install` and commit the lockfile in the same change. (2) The `--text-*` type-scale
+  tokens in `tokens.css` were never mapped in `globals.css` `@theme inline`, so every
+  `text-*` utility silently used Tailwind's default scale, not ours — invisible until the
+  Monograph scale diverged. Fixed by mapping them; independent code review caught it, plus
+  light `--ink-faint` failing AA (3.5:1 → now #6b6c64, 4.9:1). Guardrail: when adding a
+  token family, wire it into `@theme` in the same commit and verify one computed style in
+  the live browser (getComputedStyle), not just class names — and beware measuring against
+  a stale server: a second `next start` on a busy port dies with EADDRINUSE while the old
+  build keeps serving. Spacing utilities still ride Tailwind's default scale (numerically
+  identical to `--space-*`); structural wiring is an open P2.

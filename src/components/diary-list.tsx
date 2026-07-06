@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { allKeepers, deleteKeeper } from "@/lib/db";
+import { roman } from "@/lib/roman";
 import type { Keeper } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { primaryAction } from "@/components/ui/action";
@@ -41,7 +42,9 @@ export function DiaryList() {
   async function remove(row: Row) {
     await deleteKeeper(row.keeper.id);
     URL.revokeObjectURL(row.url);
-    setRows((prev) => prev?.filter((r) => r.keeper.id !== row.keeper.id) ?? null);
+    setRows(
+      (prev) => prev?.filter((r) => r.keeper.id !== row.keeper.id) ?? null,
+    );
   }
 
   if (rows === null) {
@@ -50,8 +53,10 @@ export function DiaryList() {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-line bg-paper-raised p-8 text-center">
-        <p className="font-serif text-lg text-ink">Your diary is empty — for now.</p>
+      <div className="rounded-sm border border-line bg-paper-raised p-8 text-center shadow-[var(--shadow-card)]">
+        <p className="font-serif text-xl text-ink">
+          Your diary is empty — for now.
+        </p>
         <p className="mt-2 text-ink-soft">
           Take a walk, keep one frame, and it will live here.
         </p>
@@ -62,29 +67,31 @@ export function DiaryList() {
     );
   }
 
+  // Reverse-chronological rows; the oldest keeper is Plate I of the monograph.
   return (
-    <ul className="space-y-6">
-      {rows.map((row) => (
+    <ul className="space-y-8">
+      {rows.map((row, i) => (
         <li
           key={row.keeper.id}
-          className="overflow-hidden rounded-lg border border-line bg-paper-raised"
+          className="rounded-sm border border-line bg-paper-raised p-3 shadow-[var(--shadow-card)]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={row.url}
             alt={row.keeper.story || `Keeper from ${row.keeper.missionTitle}`}
-            className="max-h-[50dvh] w-full object-contain"
+            className="max-h-[50dvh] w-full bg-paper object-contain"
           />
-          <div className="p-5">
-            <p className="text-sm text-ink-faint">
+          <div className="px-2 pt-4 pb-2">
+            <p className="text-xs uppercase tracking-(--tracking-label) text-ink-faint">
+              Plate {roman(rows.length - i)} ·{" "}
               {formatDate(row.keeper.createdAt)} · {row.keeper.missionTitle}
             </p>
             {row.keeper.story ? (
-              <p className="mt-2 font-serif text-lg leading-(--leading-prose) text-ink">
+              <p className="mt-2 font-serif text-xl leading-(--leading-prose) text-ink">
                 {row.keeper.story}
               </p>
             ) : null}
-            <div className="mt-4">
+            <div className="mt-3">
               <Button
                 variant="ghost"
                 className="px-0 text-sm"

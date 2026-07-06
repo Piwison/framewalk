@@ -24,6 +24,16 @@
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
 
+  /* Type scale: without these mappings, text-* utilities silently fall back to
+   * Tailwind's default sizes instead of the Monograph scale in tokens.css. */
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -49,4 +59,23 @@ body {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* Selecting text inverts to plate ink — the gallery has no highlighter yellow. */
+::selection {
+  background-color: var(--ink);
+  color: var(--paper);
+}
+
+/* The plate turn: a new mission/plate fades up in place. Used with a changing
+ * React `key`; duration collapses to 0 under reduced motion via the token. */
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-1));
+  }
+}
+
+.plate-in {
+  animation: plate-in var(--motion-slow) var(--ease) both;
 }

@@ -10,12 +10,13 @@ export default function TodayPage() {
           <h1
             id="today-heading"
             aria-label="Today"
-            className="font-serif text-2xl text-ink"
+            lang="zh-Hant"
+            className="font-serif text-2xl font-semibold text-ink"
           >
             今日
           </h1>
           <span className="text-xs uppercase text-ink-faint tracking-(--tracking-label)">
-            FrameWalk · 街拍日課
+            FrameWalk · <span lang="zh-Hant">街拍日課</span>
           </span>
         </div>
         <div className="mt-4 h-px bg-line" />

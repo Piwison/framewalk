@@ -9,6 +9,7 @@ import {
   recentMissionIds,
 } from "@/lib/mission-select";
 import { recordServed, servedLog } from "@/lib/db";
+import { roman } from "@/lib/roman";
 import type { LocationType, Mission } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -110,8 +111,13 @@ export function TodayMission() {
       {!mission ? (
         <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
       ) : (
-        <article>
+        // Keyed by mission so each plate fades up in place (the "plate turn").
+        <article key={mission.id} className="plate-in">
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
+            <span>
+              Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
+            </span>
+            <span aria-hidden="true">·</span>
             <span>{mission.difficulty}</span>
             {mission.involvesPeople ? (
               <>
@@ -121,12 +127,12 @@ export function TodayMission() {
             ) : null}
           </div>
 
-          <h2 className="mt-5 font-serif text-3xl leading-(--leading-tight) text-ink">
+          <h2 className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink">
             {mission.title}
           </h2>
-          <div className="mt-5 h-[3px] w-8 rounded-full bg-accent" />
+          <div className="mt-5 h-px w-10 bg-line-strong" />
 
-          <p className="mt-5 max-w-prose font-serif text-lg leading-(--leading-prose) text-ink-soft">
+          <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
             {mission.invitation}
           </p>
 
@@ -135,7 +141,7 @@ export function TodayMission() {
               I&rsquo;m going
             </Button>
             <Button variant="ghost" onClick={showAnother}>
-              Another
+              another plate
             </Button>
           </div>
         </article>

@@ -8,14 +8,16 @@ interface ChipProps {
   ariaLabel?: string;
 }
 
+/** Wall label: wide-tracked caps on a hairline plaque, like a museum placard.
+ *  Selected = the placard inverts to plate ink. */
 export function Chip({ children, selected, onClick, ariaLabel }: ChipProps) {
   const interactive = typeof onClick === "function";
   const tone = selected
     ? "bg-ink text-paper border-ink"
     : "bg-transparent text-ink-soft border-line";
   const cls =
-    "inline-flex items-center rounded-full border px-3 py-1 text-sm " +
-    `transition-colors duration-(--motion-fast) ${tone}`;
+    "inline-flex items-center rounded-sm border px-3 py-1.5 text-xs uppercase " +
+    `tracking-(--tracking-label) transition-colors duration-(--motion-fast) ${tone}`;
 
   if (!interactive) {
     return <span className={cls}>{children}</span>;

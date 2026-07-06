@@ -27,14 +27,15 @@ export function BottomNav() {
                 href={it.href}
                 aria-current={active ? "page" : undefined}
                 className={
-                  "relative flex flex-col items-center gap-1 px-2 py-3 text-sm transition-colors duration-(--motion-fast) " +
-                  (active ? "text-ink" : "text-ink-soft hover:text-ink")
+                  "relative flex flex-col items-center gap-1 px-2 py-4 text-xs uppercase tracking-(--tracking-label) transition-colors duration-(--motion-fast) " +
+                  (active ? "text-ink" : "text-ink-faint hover:text-ink")
                 }
               >
+                {/* The seal marks where you are — the nav's only colour. */}
                 {active ? (
                   <span
                     aria-hidden="true"
-                    className="absolute top-0 h-0.5 w-6 rounded-full bg-accent"
+                    className="absolute top-1.5 size-1.5 rounded-full bg-accent"
                   />
                 ) : null}
                 {it.label}

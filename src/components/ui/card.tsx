@@ -6,15 +6,15 @@ interface CardProps {
 }
 
 /**
- * Ma surface: a quiet hairline-bounded panel that leans on whitespace, not
- * shadow. Generous padding; near-zero elevation.
+ * Mat board: a near-square plate surface lifted just off the gallery wall —
+ * one hairline, one contact shadow, one soft lift (all from tokens).
  */
 export function Card({ children, className = "" }: CardProps) {
   return (
     <div
       className={
-        "rounded-lg bg-paper-raised border border-line shadow-[var(--shadow-card)] " +
-        `p-7 ${className}`
+        "rounded-sm bg-paper-raised border border-line shadow-[var(--shadow-card)] " +
+        `p-6 ${className}`
       }
     >
       {children}

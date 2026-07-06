@@ -33,7 +33,7 @@ export default async function MissionPage({
 
       <h1
         id="mission-title"
-        className="font-serif text-3xl leading-(--leading-tight) text-ink"
+        className="font-serif text-3xl font-semibold leading-(--leading-tight) text-ink"
       >
         {mission.title}
       </h1>

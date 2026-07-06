@@ -118,7 +118,7 @@ export function CullFlow() {
 
   return (
     <section aria-labelledby="cull-heading">
-      <h1 id="cull-heading" className="font-serif text-2xl text-ink">
+      <h1 id="cull-heading" className="font-serif text-2xl font-semibold text-ink">
         Cull · <span className="text-ink-soft">{missionTitle}</span>
       </h1>
 
@@ -155,7 +155,7 @@ export function CullFlow() {
           <img
             src={current.url}
             alt={`Photo ${index + 1} from this walk`}
-            className="max-h-[60dvh] w-full rounded-lg border border-line bg-paper-raised object-contain transition-opacity duration-(--motion-base)"
+            className="max-h-[60dvh] w-full rounded-sm border border-line bg-paper-raised object-contain transition-opacity duration-(--motion-base)"
           />
           <div className="mt-6 flex items-center gap-3">
             <Button ref={keepBtn} variant="primary" onClick={keep}>
@@ -174,7 +174,7 @@ export function CullFlow() {
           <img
             src={current.url}
             alt={`Kept photo ${index + 1}`}
-            className="max-h-[40dvh] w-full rounded-lg border border-line bg-paper-raised object-contain"
+            className="max-h-[40dvh] w-full rounded-sm border border-line bg-paper-raised object-contain"
           />
           <label htmlFor="story" className="mt-6 block font-serif text-lg text-ink">
             What&rsquo;s the story?
@@ -187,7 +187,7 @@ export function CullFlow() {
             rows={2}
             maxLength={200}
             placeholder="One line is plenty. Or skip it."
-            className="mt-2 w-full resize-none rounded-md border border-line bg-paper-raised p-3 text-ink placeholder:text-ink-faint"
+            className="mt-2 w-full resize-none rounded-sm border border-line bg-paper-raised p-3 text-ink placeholder:text-ink-faint"
           />
           <div className="mt-4 flex items-center gap-3">
             <Button
