@@ -39,6 +39,11 @@
   --radius-lg: var(--radius-lg);
   --radius-full: var(--radius-full);
 
+  /* Source Tailwind's whole spacing scale from tokens.css. Every padding,
+   * margin, and gap utility becomes calc(var(--space-1) * n), so a change to
+   * the 4px base in tokens.css propagates instead of silently diverging. */
+  --spacing: var(--space-1);
+
   --tracking-label: var(--tracking-label);
 }
 
@@ -78,4 +83,27 @@ body {
 
 .plate-in {
   animation: plate-in var(--motion-slow) var(--ease) both;
+}
+
+/* Grease pencil (darkroom cull): on Keep, an amber ellipse draws itself around
+ * the frame — the gesture for marking a print on a contact sheet. A gap is left
+ * at the end so it reads as a hand-drawn loop, not a printed oval. Under reduced
+ * motion, --motion-slow is 0ms so it snaps straight to the finished state. */
+@keyframes grease-draw {
+  from {
+    stroke-dashoffset: 300;
+  }
+  to {
+    stroke-dashoffset: 44;
+  }
+}
+
+.grease-draw {
+  stroke-dasharray: 300;
+  animation: grease-draw var(--motion-slow) var(--ease) forwards;
+}
+
+.grease-drawn {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 44;
 }

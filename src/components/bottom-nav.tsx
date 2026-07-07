@@ -11,10 +11,16 @@ const ITEMS: readonly { href: string; label: string }[] = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  // On the cull route the content is a full-bleed darkroom; the nav joins it so
+  // its translucent bar doesn't let the dark surface bleed through a light bg
+  // (which dropped the inactive labels below AA). Tokens do the rest.
+  const inDarkroom = pathname.startsWith("/cull");
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/90 backdrop-blur"
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/90 backdrop-blur ${
+        inDarkroom ? "darkroom" : ""
+      }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="mx-auto flex max-w-xl items-stretch justify-around">

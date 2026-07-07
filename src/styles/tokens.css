@@ -113,6 +113,29 @@
   --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
+/* Darkroom — a scoped surface for the evening cull (Direction A, borrowed).
+ * A committed single surface: it overrides BOTH themes so culling always
+ * happens under a safelight. Warm near-black ground, silver-gelatin ink, one
+ * safelight-amber accent. Every value still flows through the same token names,
+ * so the cull components carry no darkroom-specific colours of their own.
+ * Contrast verified AA: ink 14.9:1, ink-soft 9.5:1, ink-faint 6.0:1,
+ * accent-as-text 8.1:1 (all on --paper). */
+.darkroom {
+  --paper: #14110d;
+  --paper-raised: #211c14;
+  --ink: #ece4d3;
+  --ink-soft: #c3b7a0;
+  --ink-faint: #9c9078;
+  --line: #332c20;
+  --line-strong: #453c2b;
+  --accent: #e59a45;
+  --accent-soft: #3a2a15;
+  --on-ink: #14110d;
+  --danger: #e8917c;
+  --focus: #6db3d4;
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.5), 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-fast: 0ms;

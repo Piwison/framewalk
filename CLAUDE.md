@@ -110,3 +110,20 @@ skill; `frontend-design` is the official production-UI skill.
   a stale server: a second `next start` on a busy port dies with EADDRINUSE while the old
   build keeps serving. Spacing utilities still ride Tailwind's default scale (numerically
   identical to `--space-*`); structural wiring is an open P2.
+- _2026-07-06 · Darkroom cull surface + spacing wiring (the two follow-ups)._ Closed the
+  spacing P2 by mapping `--spacing: var(--space-1)` in `@theme inline`, so every
+  padding/margin/gap compiles to `calc(var(--space-1) * n)` (verified in the built CSS);
+  zero visual change since `--space-1` already equals Tailwind's 0.25rem base. Gotcha: the
+  explaining comment first contained `p-*/m-*`, whose `*/` **closed the CSS comment early**
+  and broke the Tailwind build with a cryptic "Unknown word utility" — never write `*/`
+  inside a CSS comment (spell out "padding/margin/gap" in words). Then borrowed Direction A
+  for the evening cull: a `.darkroom` token scope in `tokens.css` that overrides BOTH themes
+  (a committed single surface) — warm near-black, silver-gelatin ink, one safelight amber —
+  so the cull components need no darkroom-specific colours; plus a grease-pencil keep gesture
+  (an amber SVG ellipse that draws itself via `stroke-dashoffset`, collapsing to the finished
+  state under reduced motion through `--motion-slow`). Review-catch-equivalent found by the
+  axe e2e: the full-bleed dark section bled through the fixed nav's `bg-paper/90`, dropping
+  the light-theme inactive nav labels to 3.94:1. Fix: the nav joins the darkroom on `/cull`
+  (pathname-scoped `.darkroom` class), which fixed the contrast AND removed the light-bar
+  seam. Guardrail: a full-bleed surface under a translucent fixed bar changes that bar's
+  effective bg — re-check its contrast, don't just check the surface's own text.
