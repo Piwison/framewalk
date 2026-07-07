@@ -14,7 +14,7 @@ export function BottomNav() {
   // On the cull route the content is a full-bleed darkroom; the nav joins it so
   // its translucent bar doesn't let the dark surface bleed through a light bg
   // (which dropped the inactive labels below AA). Tokens do the rest.
-  const inDarkroom = pathname.startsWith("/cull");
+  const inDarkroom = pathname === "/cull" || pathname.startsWith("/cull/");
   return (
     <nav
       aria-label="Primary"

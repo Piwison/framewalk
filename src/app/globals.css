@@ -107,3 +107,19 @@ body {
   stroke-dasharray: 300;
   stroke-dashoffset: 44;
 }
+
+/* Safelight: a low amber glow from the top corner — the darkroom's only light.
+ * The amber is --accent (set by the .darkroom scope), so it stays token-derived;
+ * the host must be positioned (the cull section is `relative`). */
+.safelight::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 12rem;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 100% at 82% 0%,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 68%
+  );
+}

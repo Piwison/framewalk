@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { primaryAction, quietAction } from "@/components/ui/action";
 
 type Phase = "import" | "review" | "story" | "done";
+// Grease-pencil state for the REVIEW image: hidden, or drawing on Keep. The
+// story step renders <GreasePencil state="drawn" /> directly (a static mark),
+// so "drawn" is only ever used as that literal, never set via setPencil.
 type Pencil = "hidden" | "drawing" | "drawn";
 
 interface Shot {
@@ -24,11 +27,17 @@ function newId(): string {
     : `k_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+/** The grease-pencil draw duration, read from the --motion-slow token so the
+ *  phase transition never hardcodes a motion value — and collapses to 0ms under
+ *  reduced motion, because the token itself does. */
+function drawDurationMs(): number {
+  if (typeof window === "undefined") return 0;
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue("--motion-slow")
+    .trim();
+  const n = Number.parseFloat(raw);
+  if (!Number.isFinite(n)) return 0;
+  return raw.endsWith("ms") ? n : n * 1000;
 }
 
 /** The keeper's mark: an amber grease-pencil ellipse over the frame. `drawing`
@@ -80,15 +89,18 @@ export function CullFlow() {
   const storyField = useRef<HTMLTextAreaElement>(null);
   const doneHeading = useRef<HTMLParagraphElement>(null);
   const drawTimer = useRef<number | null>(null);
+  // Mirror the live shots into a ref so the mount-only cleanup revokes the
+  // CURRENT blobs, not the empty array an [] effect closure would capture.
+  const shotsRef = useRef(shots);
+  shotsRef.current = shots;
 
-  // Revoke object URLs on unmount so preview blobs don't linger in memory, and
-  // clear any pending grease-pencil timer so it can't fire after teardown.
+  // On unmount, revoke any still-live preview blobs so they don't linger in
+  // memory, and clear a pending grease-pencil timer so it can't fire post-teardown.
   useEffect(() => {
     return () => {
-      shots.forEach((s) => URL.revokeObjectURL(s.url));
+      shotsRef.current.forEach((s) => URL.revokeObjectURL(s.url));
       if (drawTimer.current) window.clearTimeout(drawTimer.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Move focus to the primary control of each new step (keyboard users, B4).
@@ -135,11 +147,14 @@ export function CullFlow() {
   function keep() {
     if (pencil === "drawing") return;
     setStatus("Kept — add a line if you like.");
-    // Draw the grease-pencil circle, then move to the story step. The circle is
-    // carried into that step (rendered `drawn`), so the mark persists.
+    // Draw the grease-pencil circle, then move to the story step (where it is
+    // rendered `drawn`, so the mark persists). The delay is the draw duration
+    // from the --motion-slow token, so nothing here hardcodes a motion value.
     setPencil("drawing");
-    const delay = prefersReducedMotion() ? 0 : 620;
-    drawTimer.current = window.setTimeout(() => setPhase("story"), delay);
+    drawTimer.current = window.setTimeout(
+      () => setPhase("story"),
+      drawDurationMs(),
+    );
   }
 
   async function saveKeeper(withStory: boolean) {
@@ -168,18 +183,11 @@ export function CullFlow() {
   return (
     <section
       aria-labelledby="cull-heading"
-      className="darkroom relative -mx-4 -mt-6 min-h-svh bg-paper px-4 pt-6 pb-24 text-ink"
+      className="darkroom safelight relative -mx-4 -mt-6 -mb-28 min-h-svh bg-paper px-4 pt-6 pb-28 text-ink"
     >
-      {/* Safelight: a low amber glow from the top corner, the room's only light. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-48"
-        style={{
-          background:
-            "radial-gradient(120% 100% at 82% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 68%)",
-        }}
-      />
-
+      {/* .safelight (globals.css) paints the room's only light as a ::before
+          amber glow; -mb-28 cancels <main>'s pb-28 so the dark surface reaches
+          the bottom instead of leaving an ambient strip under the fixed nav. */}
       <div className="relative">
         <p className="text-xs uppercase tracking-(--tracking-label) text-accent">
           Darkroom
@@ -231,10 +239,21 @@ export function CullFlow() {
               <GreasePencil state={pencil} />
             </div>
             <div className="mt-6 flex items-center gap-3">
-              <Button ref={keepBtn} variant="primary" onClick={keep}>
+              {/* aria-disabled (not disabled) during the draw: the guard makes
+                  the click a no-op without pulling focus off Keep mid-gesture. */}
+              <Button
+                ref={keepBtn}
+                variant="primary"
+                aria-disabled={pencil === "drawing"}
+                onClick={keep}
+              >
                 Keep
               </Button>
-              <Button variant="quiet" onClick={letGo}>
+              <Button
+                variant="quiet"
+                aria-disabled={pencil === "drawing"}
+                onClick={letGo}
+              >
                 Let go
               </Button>
             </div>

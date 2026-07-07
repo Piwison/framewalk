@@ -127,3 +127,17 @@ skill; `frontend-design` is the official production-UI skill.
   (pathname-scoped `.darkroom` class), which fixed the contrast AND removed the light-bar
   seam. Guardrail: a full-bleed surface under a translucent fixed bar changes that bar's
   effective bg — re-check its contrast, don't just check the surface's own text.
+- _2026-07-06 · Darkroom follow-up: independent review → three real fixes._ The reviewer
+  (separate context) REQUESTED CHANGES on the darkroom commit and was right on all three:
+  (1) the full-bleed section cancelled `<main>`'s `pt-6` but not its `pb-28`, so an ambient
+  (non-darkroom) strip sat below the surface — the same seam class we'd just fixed on the
+  nav, recurring on the opposite edge; fixed with `-mb-28` + the section owning its own
+  `pb-28` clearance. (2) The unmount cleanup ran `shots.forEach(revoke)` from an `[]`-deps
+  effect, so it closed over the INITIAL empty array and leaked every un-culled blob URL;
+  fixed with a `shotsRef` mirror read in cleanup (this bug pre-dated the restyle — latent).
+  (3) A hardcoded `620` ms delay violated tokens.css's "no component may hardcode a motion
+  value"; replaced by reading `--motion-slow` at runtime (`getComputedStyle`), which also
+  collapses to 0ms under reduced motion for free. Also extended the axe e2e to upload a
+  frame and scan the review + story phases (they'd only ever been contrast-checked by hand).
+  Guardrail: an axe route-scan only sees the FIRST screen of a multi-phase flow — drive the
+  later phases in before asserting, or their contrast is never actually tested.
