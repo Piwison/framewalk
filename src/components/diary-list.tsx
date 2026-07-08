@@ -68,8 +68,9 @@ export function DiaryList() {
   }
 
   // Reverse-chronological rows; the oldest keeper is Plate I of the monograph.
+  // Wide screens hang the plates as a two-column gallery wall.
   return (
-    <ul className="space-y-8">
+    <ul className="space-y-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0">
       {rows.map((row, i) => (
         <li
           key={row.keeper.id}

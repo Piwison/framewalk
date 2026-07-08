@@ -35,7 +35,8 @@ export function SettingsPanel() {
       .catch(() => setPersist("best-effort"));
     storageEstimate()
       .then((e) => {
-        if (e) setUsage(`${mb(e.usedBytes)} used of ~${mb(e.quotaBytes)} available`);
+        if (e)
+          setUsage(`${mb(e.usedBytes)} used of ~${mb(e.quotaBytes)} available`);
       })
       .catch(() => undefined);
   }, []);
@@ -74,7 +75,7 @@ export function SettingsPanel() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
       <Card>
         <h2 className="font-medium text-ink">Appearance</h2>
         <p className="mt-2 text-ink-soft">

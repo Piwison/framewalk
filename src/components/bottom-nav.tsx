@@ -23,7 +23,7 @@ export function BottomNav() {
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="mx-auto flex max-w-xl items-stretch justify-around">
+      <ul className="mx-auto flex max-w-xl items-stretch justify-around lg:max-w-4xl">
         {ITEMS.map((it) => {
           const active =
             it.href === "/" ? pathname === "/" : pathname.startsWith(it.href);

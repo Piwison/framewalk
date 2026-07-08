@@ -112,37 +112,48 @@ export function TodayMission() {
         <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
       ) : (
         // Keyed by mission so each plate fades up in place (the "plate turn").
-        <article key={mission.id} className="plate-in">
-          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
+        // On wide screens the plate opens like a book spread: the wall labels
+        // move into a margin column, the text block keeps its reading measure.
+        <article
+          key={mission.id}
+          className="plate-in lg:grid lg:grid-cols-[9rem_1fr] lg:gap-10"
+        >
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint lg:flex-col lg:items-start lg:gap-2 lg:border-r lg:border-line lg:pt-2 lg:pr-6">
             <span>
               Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
             </span>
-            <span aria-hidden="true">·</span>
+            <span aria-hidden="true" className="lg:hidden">
+              ·
+            </span>
             <span>{mission.difficulty}</span>
             {mission.involvesPeople ? (
               <>
-                <span aria-hidden="true">·</span>
+                <span aria-hidden="true" className="lg:hidden">
+                  ·
+                </span>
                 <span>with people</span>
               </>
             ) : null}
           </div>
 
-          <h2 className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink">
-            {mission.title}
-          </h2>
-          <div className="mt-5 h-px w-10 bg-line-strong" />
+          <div>
+            <h2 className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink lg:mt-0">
+              {mission.title}
+            </h2>
+            <div className="mt-5 h-px w-10 bg-line-strong" />
 
-          <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
-            {mission.invitation}
-          </p>
+            <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
+              {mission.invitation}
+            </p>
 
-          <div className="mt-10 flex items-center gap-5">
-            <Button variant="primary" onClick={go}>
-              I&rsquo;m going
-            </Button>
-            <Button variant="ghost" onClick={showAnother}>
-              another plate
-            </Button>
+            <div className="mt-10 flex items-center gap-5">
+              <Button variant="primary" onClick={go}>
+                I&rsquo;m going
+              </Button>
+              <Button variant="ghost" onClick={showAnother}>
+                another plate
+              </Button>
+            </div>
           </div>
         </article>
       )}

@@ -183,11 +183,13 @@ export function CullFlow() {
   return (
     <section
       aria-labelledby="cull-heading"
-      className="darkroom safelight relative -mx-4 -mt-6 -mb-28 min-h-svh bg-paper px-4 pt-6 pb-28 text-ink"
+      className="darkroom safelight relative -mx-4 -mt-6 -mb-28 min-h-svh bg-paper px-4 pt-6 pb-28 text-ink lg:-mx-8 lg:-mt-10 lg:px-8 lg:pt-10"
     >
       {/* .safelight (globals.css) paints the room's only light as a ::before
-          amber glow; -mb-28 cancels <main>'s pb-28 so the dark surface reaches
-          the bottom instead of leaving an ambient strip under the fixed nav. */}
+          amber glow. Every negative margin above cancels one of <main>'s
+          paddings (px-4/lg:px-8, pt-6/lg:pt-10, pb-28) so the dark surface is
+          seamless on all edges at every breakpoint — if layout.tsx's <main>
+          padding changes, change the pairs here too. */}
       <div className="relative">
         <p className="text-xs uppercase tracking-(--tracking-label) text-accent">
           Darkroom

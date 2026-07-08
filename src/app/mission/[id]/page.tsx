@@ -27,37 +27,46 @@ export default async function MissionPage({
         ← Today
       </Link>
 
-      {/* Same plate eyebrow as Today, so the detail page reads as the plate itself. */}
-      <div className="mt-6 flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint">
-        <span>
-          Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
-        </span>
-        <span aria-hidden="true">·</span>
-        <span>{mission.difficulty}</span>
-        {mission.involvesPeople ? (
-          <>
-            <span aria-hidden="true">·</span>
-            <span>with people</span>
-          </>
-        ) : null}
-      </div>
+      {/* Same plate treatment as Today: on wide screens the wall labels move
+          into a margin column and the text block keeps its reading measure. */}
+      <div className="mt-6 lg:grid lg:grid-cols-[9rem_1fr] lg:gap-10">
+        <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint lg:flex-col lg:items-start lg:gap-2 lg:border-r lg:border-line lg:pt-2 lg:pr-6">
+          <span>
+            Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
+          </span>
+          <span aria-hidden="true" className="lg:hidden">
+            ·
+          </span>
+          <span>{mission.difficulty}</span>
+          {mission.involvesPeople ? (
+            <>
+              <span aria-hidden="true" className="lg:hidden">
+                ·
+              </span>
+              <span>with people</span>
+            </>
+          ) : null}
+        </div>
 
-      <h1
-        id="mission-title"
-        className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink"
-      >
-        {mission.title}
-      </h1>
-      <div className="mt-5 h-px w-10 bg-line-strong" />
-      <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
-        {mission.invitation}
-      </p>
+        <div>
+          <h1
+            id="mission-title"
+            className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink lg:mt-0"
+          >
+            {mission.title}
+          </h1>
+          <div className="mt-5 h-px w-10 bg-line-strong" />
+          <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
+            {mission.invitation}
+          </p>
 
-      {/* Themes as wall labels — the vocabulary the weekly reflection tallies. */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        {mission.themes.map((theme) => (
-          <Chip key={theme}>{theme}</Chip>
-        ))}
+          {/* Themes as wall labels — the vocabulary the weekly reflection tallies. */}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {mission.themes.map((theme) => (
+              <Chip key={theme}>{theme}</Chip>
+            ))}
+          </div>
+        </div>
       </div>
 
       {mission.involvesPeople ? (

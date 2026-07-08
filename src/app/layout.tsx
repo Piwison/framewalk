@@ -64,7 +64,12 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <main id="main" className="mx-auto w-full max-w-xl px-4 pb-28 pt-6">
+        {/* Desktop widens the stage to an open-book spread; the cull section's
+            negative margins mirror px-4/lg:px-8 — change them together. */}
+        <main
+          id="main"
+          className="mx-auto w-full max-w-xl px-4 pb-28 pt-6 lg:max-w-4xl lg:px-8 lg:pt-10"
+        >
           {children}
         </main>
         <BottomNav />
