@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { findMission } from "@/lib/mission-select";
 import { MISSIONS } from "@/lib/missions";
 import { APPROACH_SCRIPTS, ETHICS_SPINE } from "@/lib/approach";
-import { roman } from "@/lib/roman";
+import { PlateMarginalia, plateSpread } from "@/components/plate-marginalia";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { primaryAction } from "@/components/ui/action";
@@ -28,25 +28,13 @@ export default async function MissionPage({
       </Link>
 
       {/* Same plate treatment as Today: on wide screens the wall labels move
-          into a margin column and the text block keeps its reading measure. */}
-      <div className="mt-6 lg:grid lg:grid-cols-[9rem_1fr] lg:gap-10">
-        <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint lg:flex-col lg:items-start lg:gap-2 lg:border-r lg:border-line lg:pt-2 lg:pr-6">
-          <span>
-            Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
-          </span>
-          <span aria-hidden="true" className="lg:hidden">
-            ·
-          </span>
-          <span>{mission.difficulty}</span>
-          {mission.involvesPeople ? (
-            <>
-              <span aria-hidden="true" className="lg:hidden">
-                ·
-              </span>
-              <span>with people</span>
-            </>
-          ) : null}
-        </div>
+          into a margin column (shared PlateMarginalia — never drifts). */}
+      <div className={`mt-6 ${plateSpread}`}>
+        <PlateMarginalia
+          plateNumber={MISSIONS.findIndex((m) => m.id === mission.id) + 1}
+          difficulty={mission.difficulty}
+          involvesPeople={mission.involvesPeople}
+        />
 
         <div>
           <h1

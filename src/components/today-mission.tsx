@@ -9,10 +9,10 @@ import {
   recentMissionIds,
 } from "@/lib/mission-select";
 import { recordServed, servedLog } from "@/lib/db";
-import { roman } from "@/lib/roman";
 import type { LocationType, Mission } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { PlateMarginalia, plateSpread } from "@/components/plate-marginalia";
 
 const LOCATIONS: readonly { value: LocationType | "any"; label: string }[] = [
   { value: "any", label: "Anywhere" },
@@ -112,29 +112,13 @@ export function TodayMission() {
         <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
       ) : (
         // Keyed by mission so each plate fades up in place (the "plate turn").
-        // On wide screens the plate opens like a book spread: the wall labels
-        // move into a margin column, the text block keeps its reading measure.
-        <article
-          key={mission.id}
-          className="plate-in lg:grid lg:grid-cols-[9rem_1fr] lg:gap-10"
-        >
-          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-(--tracking-label) text-ink-faint lg:flex-col lg:items-start lg:gap-2 lg:border-r lg:border-line lg:pt-2 lg:pr-6">
-            <span>
-              Plate {roman(MISSIONS.findIndex((m) => m.id === mission.id) + 1)}
-            </span>
-            <span aria-hidden="true" className="lg:hidden">
-              ·
-            </span>
-            <span>{mission.difficulty}</span>
-            {mission.involvesPeople ? (
-              <>
-                <span aria-hidden="true" className="lg:hidden">
-                  ·
-                </span>
-                <span>with people</span>
-              </>
-            ) : null}
-          </div>
+        // On wide screens the plate opens like a book spread (plateSpread).
+        <article key={mission.id} className={`plate-in ${plateSpread}`}>
+          <PlateMarginalia
+            plateNumber={MISSIONS.findIndex((m) => m.id === mission.id) + 1}
+            difficulty={mission.difficulty}
+            involvesPeople={mission.involvesPeople}
+          />
 
           <div>
             <h2 className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink lg:mt-0">
