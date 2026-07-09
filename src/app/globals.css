@@ -123,3 +123,54 @@ body {
     transparent 68%
   );
 }
+
+/* Route settle: every page's content eases up into place on navigation.
+ * Transform-only (never opacity) — a route is axe-scanned right after goto(),
+ * and an opacity fade could transiently read as a false contrast violation
+ * mid-transition. A pure transform never touches computed colour. */
+@keyframes route-settle {
+  from {
+    transform: translateY(10px);
+  }
+}
+
+.route-settle {
+  animation: route-settle var(--motion-base) var(--ease) both;
+}
+
+/* The page turn: swapping to "another plate" swings the new plate open like a
+ * book page, hinged at its left edge. Opacity is safe to include here because
+ * this only ever plays on an explicit user click — axe scans a route right
+ * after goto(), never mid-interaction, so it can't catch this transitional
+ * frame the way it could a route-load animation. */
+@keyframes page-turn {
+  0% {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(-92deg);
+  }
+  55% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0deg);
+  }
+}
+
+.page-turn {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  animation: page-turn var(--motion-slow) var(--ease) both;
+}
+
+/* Tilt frame: a print held up to the light. JS reads the pointer position and
+ * sets --tilt-x/--tilt-y (see components/ui/tilt-frame.tsx); this class only
+ * ever renders what those custom properties say, and the component refuses to
+ * set them at all under prefers-reduced-motion, so the frame stays flat. */
+.tilt-frame {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+  transition: transform var(--motion-fast) var(--ease);
+  will-change: transform;
+}

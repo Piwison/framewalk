@@ -141,3 +141,25 @@ skill; `frontend-design` is the official production-UI skill.
   frame and scan the review + story phases (they'd only ever been contrast-checked by hand).
   Guardrail: an axe route-scan only sees the FIRST screen of a multi-phase flow — drive the
   later phases in before asserting, or their contrast is never actually tested.
+- _2026-07-06 · Diary edit/delete + a motion pass (3D page-turn, tilt, press-feedback)._ Delete
+  already existed (`deleteKeeper` + Remove); added `updateKeeperStory` + inline single-row
+  edit (one row edits at a time; focus moves to the textarea on open and back to the Edit
+  button on save/cancel). For motion: kept the flagship 3D flourish (a `page-turn` rotateY
+  keyframe, book-hinge-left) strictly behind an explicit user action — "another plate" —
+  never the initial mount, specifically so it can never be mid-flight during an axe
+  route-scan (which always runs right after `goto()`, never after a click). A general
+  `route-settle` entrance runs on every navigation instead, transform-only (no opacity) for
+  the same reason: an opacity fade *would* be at risk of a goto-then-immediately-scan race,
+  even though the pre-existing `.plate-in` opacity fade has apparently never tripped it in
+  practice. Added a pointer-driven `TiltFrame` (mouse only, checks `prefersReducedMotion()`
+  before ever touching the DOM — not just faster, fully off) on Diary and cull photos, and
+  `active:scale-[0.97]` press feedback on all shared actions via `transition` (was
+  `transition-colors`) so colour and the new transform share one token-driven duration.
+  Verified the 3D transform is real (not just eyeballed) by sampling `getComputedStyle(...)
+  .transform` at 20/50/80/120ms during the turn — genuine non-identity matrix3d values
+  confirm actual rotation, not a static screenshot coincidence; same technique confirmed
+  `TiltFrame` flips sign correctly between pointer quadrants and resets to identity on
+  pointer-leave. Guardrail: when a request asks for "3D / motion / interactive," gate any
+  flashy multi-property (opacity+transform) animation behind an explicit interaction, not
+  a mount/route-load — that is the one moment axe (and a screen reader's first read) can't
+  be surprised by a transitional, contrast-ambiguous frame.

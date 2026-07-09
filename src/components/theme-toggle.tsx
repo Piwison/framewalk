@@ -60,7 +60,7 @@ export function ThemeToggle() {
             aria-checked={active}
             onClick={() => pick(o.value)}
             className={
-              "rounded-sm px-4 py-1.5 text-sm transition-colors duration-(--motion-fast) " +
+              "rounded-sm px-4 py-1.5 text-sm transition duration-(--motion-fast) active:scale-[0.97] " +
               (active ? "bg-ink text-on-ink" : "text-ink-soft hover:text-ink")
             }
           >

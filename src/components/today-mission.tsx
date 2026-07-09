@@ -111,9 +111,15 @@ export function TodayMission() {
       {!mission ? (
         <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
       ) : (
-        // Keyed by mission so each plate fades up in place (the "plate turn").
-        // On wide screens the plate opens like a book spread (plateSpread).
-        <article key={mission.id} className={`plate-in ${plateSpread}`}>
+        // Keyed by mission so each plate re-enters on change. The very first
+        // mission (nonce === 1) settles in quietly (.plate-in); an explicit
+        // "another plate" click (nonce > 1) gets the full 3D page-turn — a
+        // flourish reserved for the moment the reader asked for it, never for
+        // the page simply loading. On wide screens it also opens as a spread.
+        <article
+          key={mission.id}
+          className={`${nonce > 1 ? "page-turn" : "plate-in"} ${plateSpread}`}
+        >
           <PlateMarginalia
             plateNumber={MISSIONS.findIndex((m) => m.id === mission.id) + 1}
             difficulty={mission.difficulty}

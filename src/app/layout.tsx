@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { AppInit } from "@/components/app-init";
 import { BottomNav } from "@/components/bottom-nav";
+import { RouteTransition } from "@/components/route-transition";
 
 /* Monograph plate face: high-contrast garalde for titles and invitations.
  * 500 is the workhorse (400 is too frail on screen); 600 carries plate titles. */
@@ -70,7 +71,7 @@ export default function RootLayout({
           id="main"
           className="mx-auto w-full max-w-xl px-4 pb-28 pt-6 lg:max-w-4xl lg:px-8 lg:pt-10"
         >
-          {children}
+          <RouteTransition>{children}</RouteTransition>
         </main>
         <BottomNav />
       </body>

@@ -9,6 +9,7 @@ import { makeThumbnail } from "@/lib/thumbnail";
 import { addKeeper } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { primaryAction, quietAction } from "@/components/ui/action";
+import { TiltFrame } from "@/components/ui/tilt-frame";
 
 type Phase = "import" | "review" | "story" | "done";
 // Grease-pencil state for the REVIEW image: hidden, or drawing on Keep. The
@@ -231,7 +232,7 @@ export function CullFlow() {
             <p className="mb-3 text-xs uppercase tracking-(--tracking-label) text-accent">
               Frame {index + 1} of {shots.length}
             </p>
-            <div className="relative">
+            <TiltFrame className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={current.url}
@@ -239,7 +240,7 @@ export function CullFlow() {
                 className="max-h-[56dvh] w-full rounded-sm border border-line bg-paper-raised object-contain"
               />
               <GreasePencil state={pencil} />
-            </div>
+            </TiltFrame>
             <div className="mt-6 flex items-center gap-3">
               {/* aria-disabled (not disabled) during the draw: the guard makes
                   the click a no-op without pulling focus off Keep mid-gesture. */}
@@ -264,7 +265,7 @@ export function CullFlow() {
 
         {phase === "story" && current ? (
           <div className="mt-6">
-            <div className="relative">
+            <TiltFrame className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={current.url}
@@ -272,7 +273,7 @@ export function CullFlow() {
                 className="max-h-[38dvh] w-full rounded-sm border border-line bg-paper-raised object-contain"
               />
               <GreasePencil state="drawn" />
-            </div>
+            </TiltFrame>
             <label
               htmlFor="story"
               className="mt-6 block font-serif text-xl text-ink"

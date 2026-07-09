@@ -17,7 +17,8 @@ export function Chip({ children, selected, onClick, ariaLabel }: ChipProps) {
     : "bg-transparent text-ink-soft border-line";
   const cls =
     "inline-flex items-center rounded-sm border px-3 py-1.5 text-xs uppercase " +
-    `tracking-(--tracking-label) transition-colors duration-(--motion-fast) ${tone}`;
+    "tracking-(--tracking-label) transition duration-(--motion-fast) " +
+    `active:scale-[0.97] ${tone}`;
 
   if (!interactive) {
     return <span className={cls}>{children}</span>;
