@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { pressScale } from "@/components/ui/action";
 
 type Choice = "system" | "light" | "dark";
 const KEY = "framewalk-theme";
@@ -60,7 +61,7 @@ export function ThemeToggle() {
             aria-checked={active}
             onClick={() => pick(o.value)}
             className={
-              "rounded-sm px-4 py-1.5 text-sm transition duration-(--motion-fast) active:scale-[0.97] " +
+              `rounded-sm px-4 py-1.5 text-sm transition duration-(--motion-fast) ${pressScale} ` +
               (active ? "bg-ink text-on-ink" : "text-ink-soft hover:text-ink")
             }
           >

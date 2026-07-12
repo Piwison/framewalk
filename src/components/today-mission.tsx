@@ -29,6 +29,10 @@ export function TodayMission() {
   const [mission, setMission] = useState<Mission | null>(null);
   const [ready, setReady] = useState(false);
   const [nonce, setNonce] = useState(1);
+  // True only for the mission "another plate" just picked — never for the
+  // initial pick or a location-filter change, so the 3D page-turn stays
+  // scoped to the exact interaction it's a flourish for.
+  const [justTurned, setJustTurned] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -54,6 +58,7 @@ export function TodayMission() {
       locationType: location === "any" ? undefined : location,
       recentIds: recent,
     };
+    setJustTurned(false);
     setMission(missionOfTheDay(MISSIONS, ctx) ?? null);
   }, [ready, location, recent]);
 
@@ -71,7 +76,10 @@ export function TodayMission() {
       next,
     );
     setNonce(next);
-    if (picked) setMission(picked);
+    if (picked) {
+      setJustTurned(true);
+      setMission(picked);
+    }
   }
 
   async function go() {
@@ -111,14 +119,14 @@ export function TodayMission() {
       {!mission ? (
         <p className="py-10 text-ink-faint">Finding a mission for right now…</p>
       ) : (
-        // Keyed by mission so each plate re-enters on change. The very first
-        // mission (nonce === 1) settles in quietly (.plate-in); an explicit
-        // "another plate" click (nonce > 1) gets the full 3D page-turn — a
-        // flourish reserved for the moment the reader asked for it, never for
-        // the page simply loading. On wide screens it also opens as a spread.
+        // Keyed by mission so each plate re-enters on change. The initial
+        // pick and any location-filter change settle in quietly (.plate-in);
+        // only an explicit "another plate" click (justTurned) gets the full
+        // 3D page-turn — a flourish reserved for the moment the reader asked
+        // for it. On wide screens it also opens as a spread.
         <article
           key={mission.id}
-          className={`${nonce > 1 ? "page-turn" : "plate-in"} ${plateSpread}`}
+          className={`${justTurned ? "page-turn" : "plate-in"} ${plateSpread}`}
         >
           <PlateMarginalia
             plateNumber={MISSIONS.findIndex((m) => m.id === mission.id) + 1}

@@ -72,11 +72,15 @@ body {
   color: var(--paper);
 }
 
-/* The plate turn: a new mission/plate fades up in place. Used with a changing
- * React `key`; duration collapses to 0 under reduced motion via the token. */
+/* The plate turn: a new mission/plate settles up in place. Used with a
+ * changing React `key`; duration collapses to 0 under reduced motion via the
+ * token. Transform-only (never opacity) — this runs on every Today mount,
+ * which is exactly the moment axe scans a route right after goto(); an
+ * opacity fade risks reading as a transient false contrast violation if the
+ * scan happens mid-fade (see the route-settle keyframes below for the same
+ * reasoning, and CLAUDE.md's error log for the flake this caused in practice). */
 @keyframes plate-in {
   from {
-    opacity: 0;
     transform: translateY(var(--space-1));
   }
 }
@@ -130,7 +134,7 @@ body {
  * mid-transition. A pure transform never touches computed colour. */
 @keyframes route-settle {
   from {
-    transform: translateY(10px);
+    transform: translateY(var(--space-2));
   }
 }
 

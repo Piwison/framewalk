@@ -46,12 +46,18 @@ export async function deleteKeeper(id: string): Promise<void> {
 }
 
 /** Rewrite a keeper's story in place. The photo and date are never edited —
- *  only the line the diarist chose to add or revise. */
+ *  only the line the diarist chose to add or revise. Dexie's `.update()`
+ *  resolves to 0 (not a throw) if the row is already gone — e.g. deleted from
+ *  another tab while this one had it open for editing — so a silent 0 is
+ *  turned into a throw here rather than reported as a successful save. */
 export async function updateKeeperStory(
   id: string,
   story: string,
 ): Promise<void> {
-  await db().keepers.update(id, { story });
+  const updated = await db().keepers.update(id, { story });
+  if (updated === 0) {
+    throw new Error(`Keeper ${id} no longer exists.`);
+  }
 }
 
 export async function recordServed(

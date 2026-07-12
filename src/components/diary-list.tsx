@@ -25,13 +25,21 @@ function formatDate(ms: number): string {
 export function DiaryList() {
   const [rows, setRows] = useState<Row[] | null>(null);
   // Only one plate edits its story at a time, so ids never collide and the
-  // page stays calm — editing is a deliberate, singular act.
+  // page stays calm — editing is a deliberate, singular act. Other rows'
+  // Edit/Remove controls are disabled while one is open, so a stray click
+  // can never silently discard an in-progress draft.
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("");
   const storyField = useRef<HTMLTextAreaElement>(null);
   const editBtnRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  // The Edit button for `id` unmounts the instant editing starts (it only
+  // renders in the non-editing branch), so its ref is gone long before
+  // Save/Cancel run — focusing it there is a no-op. Instead, record which
+  // row is closing and restore focus in an effect that fires AFTER that
+  // row's non-editing branch (and its button) has remounted.
+  const restoreFocusTo = useRef<string | null>(null);
 
   useEffect(() => {
     let urls: string[] = [];
@@ -49,7 +57,15 @@ export function DiaryList() {
   }, []);
 
   useEffect(() => {
-    if (editingId) storyField.current?.focus();
+    if (editingId) {
+      storyField.current?.focus();
+      return;
+    }
+    const id = restoreFocusTo.current;
+    if (id) {
+      editBtnRefs.current.get(id)?.focus();
+      restoreFocusTo.current = null;
+    }
   }, [editingId]);
 
   async function remove(row: Row) {
@@ -67,9 +83,8 @@ export function DiaryList() {
   }
 
   function cancelEdit() {
-    const id = editingId;
+    restoreFocusTo.current = editingId;
     setEditingId(null);
-    if (id) editBtnRefs.current.get(id)?.focus();
   }
 
   async function saveEdit(row: Row) {
@@ -87,8 +102,8 @@ export function DiaryList() {
           ) ?? null,
       );
       setStatus("Story updated.");
+      restoreFocusTo.current = row.keeper.id;
       setEditingId(null);
-      editBtnRefs.current.get(row.keeper.id)?.focus();
     } catch {
       setStatus("Couldn't save that — nothing was changed.");
     } finally {
@@ -126,6 +141,7 @@ export function DiaryList() {
       <ul className="space-y-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0">
         {rows.map((row, i) => {
           const editing = editingId === row.keeper.id;
+          const otherRowEditing = editingId !== null && !editing;
           return (
             <li
               key={row.keeper.id}
@@ -197,6 +213,7 @@ export function DiaryList() {
                         }}
                         variant="ghost"
                         className="px-0 text-sm"
+                        disabled={otherRowEditing}
                         aria-label={
                           row.keeper.story
                             ? `Edit story for the keeper from ${row.keeper.missionTitle}`
@@ -209,6 +226,7 @@ export function DiaryList() {
                       <Button
                         variant="ghost"
                         className="px-0 text-sm"
+                        disabled={otherRowEditing}
                         aria-label={`Remove keeper from ${row.keeper.missionTitle}`}
                         onClick={() => remove(row)}
                       >

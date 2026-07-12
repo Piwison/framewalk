@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { pressScale } from "@/components/ui/action";
 
 interface ChipProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ export function Chip({ children, selected, onClick, ariaLabel }: ChipProps) {
   const cls =
     "inline-flex items-center rounded-sm border px-3 py-1.5 text-xs uppercase " +
     "tracking-(--tracking-label) transition duration-(--motion-fast) " +
-    `active:scale-[0.97] ${tone}`;
+    `${pressScale} ${tone}`;
 
   if (!interactive) {
     return <span className={cls}>{children}</span>;

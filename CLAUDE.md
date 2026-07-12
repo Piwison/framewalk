@@ -163,3 +163,31 @@ skill; `frontend-design` is the official production-UI skill.
   flashy multi-property (opacity+transform) animation behind an explicit interaction, not
   a mount/route-load — that is the one moment axe (and a screen reader's first read) can't
   be surprised by a transitional, contrast-ambiguous frame.
+- _2026-07-06 · Diary/motion follow-up: review caught two real focus bugs, then `.plate-in`'s
+  "apparently never tripped it" opposite ran out of luck._ Independent review found (1) the
+  diary edit Save/Cancel focus-restoration was dead code — the Edit button unmounts (clearing
+  its ref-map entry) the instant editing starts, long before Save/Cancel ever run `.focus()`
+  on it, so it silently no-opped every time. Fixed with a ref that records which row is
+  closing, read by a `useEffect` keyed on `editingId → null`, which fires after React commits
+  the remount (ref callbacks attach before passive effects run, so the button is live again by
+  then). (2) `RouteTransition`'s pathname-keyed remount (needed so `.route-settle` replays on
+  navigation) tears down whatever had focus a moment ago — usually the very link just clicked
+  — dropping keyboard/AT focus to `<body>` on ordinary navigation. Fixed by focusing the new
+  route's wrapper (`tabIndex={-1}`, outline suppressed since a page-wide focus rectangle is
+  noise) — but only on actual pathname changes, never the first mount, or it would steal the
+  "Skip to content" link's place as the first Tab stop on a cold load. Added regression tests
+  for both (`diary-list.test.tsx`, `route-transition.test.tsx`) since the project's own
+  `toHaveFocus()` idiom (already used in `cull-flow.test.tsx`) would have caught this in
+  minutes — it just hadn't been applied here yet.
+  Separately, two full e2e runs flaked on `color-contrast` at route `/`, both times pointing at
+  the "Plate N" eyebrow span with a contrast ratio matching a mid-fade blend, not the settled
+  token value. The previous entry above had noted `.plate-in`'s opacity fade "apparently never
+  tripped" the goto-then-scan race — it just had, twice, under this session's parallel test
+  load. Fixed by making `.plate-in` transform-only (dropped the `opacity: 0` from its
+  keyframes), matching `.route-settle`'s and `.page-turn`'s already-documented reasoning.
+  Verified with 10 isolated stress-test runs + 2 full-suite runs, all clean (was previously
+  "verified" only by two passing runs, which is exactly how a ~1-in-16 race hides). Guardrail:
+  an animation that runs on every mount of an axe-scanned route needs proof across *many* runs,
+  not two — a rare race can pass a handful of checks by chance and still ship broken; when
+  something is asserted "safe in practice" without a mechanism (a structural exclusion, not
+  just "hasn't happened yet"), treat it as a checked mechanism you also need to fix, not a fact.
