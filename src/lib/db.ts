@@ -24,7 +24,9 @@ let _db: FrameWalkDB | null = null;
 /** Lazily construct the DB in the browser only (avoids SSR touching IndexedDB). */
 export function db(): FrameWalkDB {
   if (typeof indexedDB === "undefined") {
-    throw new Error("IndexedDB is unavailable (server or unsupported runtime).");
+    throw new Error(
+      "IndexedDB is unavailable (server or unsupported runtime).",
+    );
   }
   _db ??= new FrameWalkDB();
   return _db;
@@ -43,7 +45,25 @@ export async function deleteKeeper(id: string): Promise<void> {
   await db().keepers.delete(id);
 }
 
-export async function recordServed(missionId: string, now: number): Promise<void> {
+/** Rewrite a keeper's story in place. The photo and date are never edited —
+ *  only the line the diarist chose to add or revise. Dexie's `.update()`
+ *  resolves to 0 (not a throw) if the row is already gone — e.g. deleted from
+ *  another tab while this one had it open for editing — so a silent 0 is
+ *  turned into a throw here rather than reported as a successful save. */
+export async function updateKeeperStory(
+  id: string,
+  story: string,
+): Promise<void> {
+  const updated = await db().keepers.update(id, { story });
+  if (updated === 0) {
+    throw new Error(`Keeper ${id} no longer exists.`);
+  }
+}
+
+export async function recordServed(
+  missionId: string,
+  now: number,
+): Promise<void> {
   await db().served.put({ missionId, servedAt: now });
 }
 

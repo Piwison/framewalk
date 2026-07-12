@@ -1,12 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AppInit } from "@/components/app-init";
 import { BottomNav } from "@/components/bottom-nav";
+import { RouteTransition } from "@/components/route-transition";
 
-const prose = Fraunces({
+/* Monograph plate face: high-contrast garalde for titles and invitations.
+ * 500 is the workhorse (400 is too frail on screen); 600 carries plate titles. */
+const prose = Cormorant_Garamond({
   subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
   variable: "--font-prose",
   display: "swap",
 });
@@ -25,9 +30,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // Mirrors --paper in src/styles/tokens.css (meta tags can't read CSS vars);
+  // update both together, plus public/manifest.webmanifest.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf5" },
-    { media: "(prefers-color-scheme: dark)", color: "#1b1a15" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f5f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a1b19" },
   ],
   viewportFit: "cover",
   width: "device-width",
@@ -42,7 +49,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${prose.variable} ${ui.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${prose.variable} ${ui.variable}`}
+    >
       <body className="min-h-dvh">
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInit}
@@ -54,8 +65,13 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <main id="main" className="mx-auto w-full max-w-xl px-4 pb-28 pt-6">
-          {children}
+        {/* Desktop widens the stage to an open-book spread; the cull section's
+            negative margins mirror px-4/lg:px-8 — change them together. */}
+        <main
+          id="main"
+          className="mx-auto w-full max-w-xl px-4 pb-28 pt-6 lg:max-w-4xl lg:px-8 lg:pt-10"
+        >
+          <RouteTransition>{children}</RouteTransition>
         </main>
         <BottomNav />
       </body>

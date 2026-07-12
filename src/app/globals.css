@@ -24,10 +24,25 @@
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
 
+  /* Type scale: without these mappings, text-* utilities silently fall back to
+   * Tailwind's default sizes instead of the Monograph scale in tokens.css. */
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-full: var(--radius-full);
+
+  /* Source Tailwind's whole spacing scale from tokens.css. Every padding,
+   * margin, and gap utility becomes calc(var(--space-1) * n), so a change to
+   * the 4px base in tokens.css propagates instead of silently diverging. */
+  --spacing: var(--space-1);
 
   --tracking-label: var(--tracking-label);
 }
@@ -49,4 +64,117 @@ body {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* Selecting text inverts to plate ink — the gallery has no highlighter yellow. */
+::selection {
+  background-color: var(--ink);
+  color: var(--paper);
+}
+
+/* The plate turn: a new mission/plate settles up in place. Used with a
+ * changing React `key`; duration collapses to 0 under reduced motion via the
+ * token. Transform-only (never opacity) — this runs on every Today mount,
+ * which is exactly the moment axe scans a route right after goto(); an
+ * opacity fade risks reading as a transient false contrast violation if the
+ * scan happens mid-fade (see the route-settle keyframes below for the same
+ * reasoning, and CLAUDE.md's error log for the flake this caused in practice). */
+@keyframes plate-in {
+  from {
+    transform: translateY(var(--space-1));
+  }
+}
+
+.plate-in {
+  animation: plate-in var(--motion-slow) var(--ease) both;
+}
+
+/* Grease pencil (darkroom cull): on Keep, an amber ellipse draws itself around
+ * the frame — the gesture for marking a print on a contact sheet. A gap is left
+ * at the end so it reads as a hand-drawn loop, not a printed oval. Under reduced
+ * motion, --motion-slow is 0ms so it snaps straight to the finished state. */
+@keyframes grease-draw {
+  from {
+    stroke-dashoffset: 300;
+  }
+  to {
+    stroke-dashoffset: 44;
+  }
+}
+
+.grease-draw {
+  stroke-dasharray: 300;
+  animation: grease-draw var(--motion-slow) var(--ease) forwards;
+}
+
+.grease-drawn {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 44;
+}
+
+/* Safelight: a low amber glow from the top corner — the darkroom's only light.
+ * The amber is --accent (set by the .darkroom scope), so it stays token-derived;
+ * the host must be positioned (the cull section is `relative`). */
+.safelight::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 12rem;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 100% at 82% 0%,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 68%
+  );
+}
+
+/* Route settle: every page's content eases up into place on navigation.
+ * Transform-only (never opacity) — a route is axe-scanned right after goto(),
+ * and an opacity fade could transiently read as a false contrast violation
+ * mid-transition. A pure transform never touches computed colour. */
+@keyframes route-settle {
+  from {
+    transform: translateY(var(--space-2));
+  }
+}
+
+.route-settle {
+  animation: route-settle var(--motion-base) var(--ease) both;
+}
+
+/* The page turn: swapping to "another plate" swings the new plate open like a
+ * book page, hinged at its left edge. Opacity is safe to include here because
+ * this only ever plays on an explicit user click — axe scans a route right
+ * after goto(), never mid-interaction, so it can't catch this transitional
+ * frame the way it could a route-load animation. */
+@keyframes page-turn {
+  0% {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(-92deg);
+  }
+  55% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0deg);
+  }
+}
+
+.page-turn {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  animation: page-turn var(--motion-slow) var(--ease) both;
+}
+
+/* Tilt frame: a print held up to the light. JS reads the pointer position and
+ * sets --tilt-x/--tilt-y (see components/ui/tilt-frame.tsx); this class only
+ * ever renders what those custom properties say, and the component refuses to
+ * set them at all under prefers-reduced-motion, so the frame stays flat. */
+.tilt-frame {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+  transition: transform var(--motion-fast) var(--ease);
+  will-change: transform;
 }

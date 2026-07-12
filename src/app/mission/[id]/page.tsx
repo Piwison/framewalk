@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { findMission } from "@/lib/mission-select";
 import { MISSIONS } from "@/lib/missions";
 import { APPROACH_SCRIPTS, ETHICS_SPINE } from "@/lib/approach";
+import { PlateMarginalia, plateSpread } from "@/components/plate-marginalia";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { primaryAction } from "@/components/ui/action";
@@ -26,20 +27,35 @@ export default async function MissionPage({
         ← Today
       </Link>
 
-      <div className="mt-4 mb-3 flex flex-wrap gap-2">
-        <Chip>{mission.difficulty}</Chip>
-        {mission.involvesPeople ? <Chip>with people</Chip> : null}
-      </div>
+      {/* Same plate treatment as Today: on wide screens the wall labels move
+          into a margin column (shared PlateMarginalia — never drifts). */}
+      <div className={`mt-6 ${plateSpread}`}>
+        <PlateMarginalia
+          plateNumber={MISSIONS.findIndex((m) => m.id === mission.id) + 1}
+          difficulty={mission.difficulty}
+          involvesPeople={mission.involvesPeople}
+        />
 
-      <h1
-        id="mission-title"
-        className="font-serif text-3xl leading-(--leading-tight) text-ink"
-      >
-        {mission.title}
-      </h1>
-      <p className="mt-4 font-serif text-lg leading-(--leading-prose) text-ink-soft">
-        {mission.invitation}
-      </p>
+        <div>
+          <h1
+            id="mission-title"
+            className="mt-5 font-serif text-3xl font-semibold leading-(--leading-tight) text-ink lg:mt-0"
+          >
+            {mission.title}
+          </h1>
+          <div className="mt-5 h-px w-10 bg-line-strong" />
+          <p className="mt-5 max-w-prose font-serif text-xl leading-(--leading-prose) text-ink-soft">
+            {mission.invitation}
+          </p>
+
+          {/* Themes as wall labels — the vocabulary the weekly reflection tallies. */}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {mission.themes.map((theme) => (
+              <Chip key={theme}>{theme}</Chip>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {mission.involvesPeople ? (
         <section aria-labelledby="approach-heading" className="mt-8 space-y-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { pressScale } from "@/components/ui/action";
 
 type Choice = "system" | "light" | "dark";
 const KEY = "framewalk-theme";
@@ -48,7 +49,7 @@ export function ThemeToggle() {
     <div
       role="radiogroup"
       aria-label="Appearance"
-      className="inline-flex rounded-full border border-line p-1"
+      className="inline-flex rounded-sm border border-line p-1"
     >
       {OPTIONS.map((o) => {
         const active = choice === o.value;
@@ -60,7 +61,7 @@ export function ThemeToggle() {
             aria-checked={active}
             onClick={() => pick(o.value)}
             className={
-              "rounded-full px-4 py-1.5 text-sm transition-colors duration-(--motion-fast) " +
+              `rounded-sm px-4 py-1.5 text-sm transition duration-(--motion-fast) ${pressScale} ` +
               (active ? "bg-ink text-on-ink" : "text-ink-soft hover:text-ink")
             }
           >

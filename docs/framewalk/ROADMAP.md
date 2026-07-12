@@ -1,8 +1,11 @@
 # FrameWalk — Roadmap
 
-> Owner: Jason (PM) · Driver: ai-product-builder · Updated 2026-06-23
+> Owner: Jason (PM) · Driver: ai-product-builder · Updated 2026-07-06
 > North star: weekly *intentful walks completed* (mission opened → ≥1 keeper saved).
-> Design direction (locked): 間 Ma — "清亮無負擔" (bright, unburdened, type-led).
+> Design direction (locked 2026-07-06): 寫真集 **Monograph** — platinum-print gallery,
+> Cormorant plate titles, hanko-seal accent; missions/keepers as numbered plates. The cull
+> is a scoped **Darkroom** surface (borrowed from the Darkroom direction). Supersedes 間 Ma;
+> chosen from three prototyped directions (`docs/design/ui-directions-prototype.html`, PR #1).
 
 ## ✅ M1 — SHIPPED (the loop works, to product-quality)
 - **Core loop** — Today → Mission (approach/ethics cards) → Cull → Story → Diary, on
@@ -32,12 +35,24 @@
 2. ✅ **ponytail APPROVED** (2026-06-23) — install via the desktop plugin UI (agents can't
    install plugins from a session). See `SKILLS-TO-IMPORT.md`.
 
+## ✅ Also done (2026-07-06, PR #1)
+- **Monograph restyle** — token-level redesign (palette/type/plates/seal CTA), missions and
+  keepers as numbered plates; two independent review rounds (both initially blocked, all
+  P1s fixed, final APPROVE). Type scale + spacing scale now structurally wired into
+  Tailwind's `@theme` (both were silently on defaults before).
+- **Darkroom cull** — scoped `.darkroom` token surface (overrides both themes) + the
+  grease-pencil keep gesture; axe e2e now drives the review/story phases (32/32).
+- **Desktop treatment** — wide screens open like a book spread: `lg:max-w-4xl` stage,
+  marginalia column for plate labels on Today/Mission, two-column gallery wall on Diary,
+  paired Settings cards; mobile unchanged; darkroom margins mirrored per breakpoint.
+
 ## 🗓 Later (v1.1 "it sticks" — still no AI)
 5. ✅ **Weekly reflection** shipped — `lib/reflection.ts` + `ReflectionCard` on Diary (no AI,
    on-device, vitest-covered). Richer diary filters + mission favouriting still open.
-6. Desktop treatment (wide screens currently center a mobile column).
+6. ✅ **Desktop treatment** shipped 2026-07-06 (see above).
 7. Small refinements: APG-grade arrow-key nav for the radiogroup (AA already met via Tab),
-   diary thumbnail mat; landing page in the Ma voice; then a small public beta.
+   diary thumbnail mat (partly covered by the Monograph mat-board plates); landing page in
+   the Monograph voice; then a small public beta.
 
 ## 🧊 Deferred — see `BACKLOG.md`
 All AI features + encrypted sync / zine export / group walks. Only after the loop is loved.

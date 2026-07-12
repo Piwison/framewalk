@@ -97,3 +97,97 @@ skill; `frontend-design` is the official production-UI skill.
   (install via desktop UI — agents can't install plugins from a session). Guardrail: adding a
   required field to `Mission` (`themes`) means every Mission-builder in tests needs it —
   updated the `mission-select.test.ts` helper so `tsc`/`vitest` stay green.
+- _2026-07-06 · Monograph restyle: two review-caught P1s._ (1) `package-lock.json` was out
+  of sync with `package.json` (devDep bumps without a lock regen) — `npm ci` failed locally
+  and would break CI; re-synced via `npm install`. Guardrail: after any dependency edit, run
+  `npm install` and commit the lockfile in the same change. (2) The `--text-*` type-scale
+  tokens in `tokens.css` were never mapped in `globals.css` `@theme inline`, so every
+  `text-*` utility silently used Tailwind's default scale, not ours — invisible until the
+  Monograph scale diverged. Fixed by mapping them; independent code review caught it, plus
+  light `--ink-faint` failing AA (3.5:1 → now #6b6c64, 4.9:1). Guardrail: when adding a
+  token family, wire it into `@theme` in the same commit and verify one computed style in
+  the live browser (getComputedStyle), not just class names — and beware measuring against
+  a stale server: a second `next start` on a busy port dies with EADDRINUSE while the old
+  build keeps serving. Spacing utilities still ride Tailwind's default scale (numerically
+  identical to `--space-*`); structural wiring is an open P2.
+- _2026-07-06 · Darkroom cull surface + spacing wiring (the two follow-ups)._ Closed the
+  spacing P2 by mapping `--spacing: var(--space-1)` in `@theme inline`, so every
+  padding/margin/gap compiles to `calc(var(--space-1) * n)` (verified in the built CSS);
+  zero visual change since `--space-1` already equals Tailwind's 0.25rem base. Gotcha: the
+  explaining comment first contained `p-*/m-*`, whose `*/` **closed the CSS comment early**
+  and broke the Tailwind build with a cryptic "Unknown word utility" — never write `*/`
+  inside a CSS comment (spell out "padding/margin/gap" in words). Then borrowed Direction A
+  for the evening cull: a `.darkroom` token scope in `tokens.css` that overrides BOTH themes
+  (a committed single surface) — warm near-black, silver-gelatin ink, one safelight amber —
+  so the cull components need no darkroom-specific colours; plus a grease-pencil keep gesture
+  (an amber SVG ellipse that draws itself via `stroke-dashoffset`, collapsing to the finished
+  state under reduced motion through `--motion-slow`). Review-catch-equivalent found by the
+  axe e2e: the full-bleed dark section bled through the fixed nav's `bg-paper/90`, dropping
+  the light-theme inactive nav labels to 3.94:1. Fix: the nav joins the darkroom on `/cull`
+  (pathname-scoped `.darkroom` class), which fixed the contrast AND removed the light-bar
+  seam. Guardrail: a full-bleed surface under a translucent fixed bar changes that bar's
+  effective bg — re-check its contrast, don't just check the surface's own text.
+- _2026-07-06 · Darkroom follow-up: independent review → three real fixes._ The reviewer
+  (separate context) REQUESTED CHANGES on the darkroom commit and was right on all three:
+  (1) the full-bleed section cancelled `<main>`'s `pt-6` but not its `pb-28`, so an ambient
+  (non-darkroom) strip sat below the surface — the same seam class we'd just fixed on the
+  nav, recurring on the opposite edge; fixed with `-mb-28` + the section owning its own
+  `pb-28` clearance. (2) The unmount cleanup ran `shots.forEach(revoke)` from an `[]`-deps
+  effect, so it closed over the INITIAL empty array and leaked every un-culled blob URL;
+  fixed with a `shotsRef` mirror read in cleanup (this bug pre-dated the restyle — latent).
+  (3) A hardcoded `620` ms delay violated tokens.css's "no component may hardcode a motion
+  value"; replaced by reading `--motion-slow` at runtime (`getComputedStyle`), which also
+  collapses to 0ms under reduced motion for free. Also extended the axe e2e to upload a
+  frame and scan the review + story phases (they'd only ever been contrast-checked by hand).
+  Guardrail: an axe route-scan only sees the FIRST screen of a multi-phase flow — drive the
+  later phases in before asserting, or their contrast is never actually tested.
+- _2026-07-06 · Diary edit/delete + a motion pass (3D page-turn, tilt, press-feedback)._ Delete
+  already existed (`deleteKeeper` + Remove); added `updateKeeperStory` + inline single-row
+  edit (one row edits at a time; focus moves to the textarea on open and back to the Edit
+  button on save/cancel). For motion: kept the flagship 3D flourish (a `page-turn` rotateY
+  keyframe, book-hinge-left) strictly behind an explicit user action — "another plate" —
+  never the initial mount, specifically so it can never be mid-flight during an axe
+  route-scan (which always runs right after `goto()`, never after a click). A general
+  `route-settle` entrance runs on every navigation instead, transform-only (no opacity) for
+  the same reason: an opacity fade *would* be at risk of a goto-then-immediately-scan race,
+  even though the pre-existing `.plate-in` opacity fade has apparently never tripped it in
+  practice. Added a pointer-driven `TiltFrame` (mouse only, checks `prefersReducedMotion()`
+  before ever touching the DOM — not just faster, fully off) on Diary and cull photos, and
+  `active:scale-[0.97]` press feedback on all shared actions via `transition` (was
+  `transition-colors`) so colour and the new transform share one token-driven duration.
+  Verified the 3D transform is real (not just eyeballed) by sampling `getComputedStyle(...)
+  .transform` at 20/50/80/120ms during the turn — genuine non-identity matrix3d values
+  confirm actual rotation, not a static screenshot coincidence; same technique confirmed
+  `TiltFrame` flips sign correctly between pointer quadrants and resets to identity on
+  pointer-leave. Guardrail: when a request asks for "3D / motion / interactive," gate any
+  flashy multi-property (opacity+transform) animation behind an explicit interaction, not
+  a mount/route-load — that is the one moment axe (and a screen reader's first read) can't
+  be surprised by a transitional, contrast-ambiguous frame.
+- _2026-07-06 · Diary/motion follow-up: review caught two real focus bugs, then `.plate-in`'s
+  "apparently never tripped it" opposite ran out of luck._ Independent review found (1) the
+  diary edit Save/Cancel focus-restoration was dead code — the Edit button unmounts (clearing
+  its ref-map entry) the instant editing starts, long before Save/Cancel ever run `.focus()`
+  on it, so it silently no-opped every time. Fixed with a ref that records which row is
+  closing, read by a `useEffect` keyed on `editingId → null`, which fires after React commits
+  the remount (ref callbacks attach before passive effects run, so the button is live again by
+  then). (2) `RouteTransition`'s pathname-keyed remount (needed so `.route-settle` replays on
+  navigation) tears down whatever had focus a moment ago — usually the very link just clicked
+  — dropping keyboard/AT focus to `<body>` on ordinary navigation. Fixed by focusing the new
+  route's wrapper (`tabIndex={-1}`, outline suppressed since a page-wide focus rectangle is
+  noise) — but only on actual pathname changes, never the first mount, or it would steal the
+  "Skip to content" link's place as the first Tab stop on a cold load. Added regression tests
+  for both (`diary-list.test.tsx`, `route-transition.test.tsx`) since the project's own
+  `toHaveFocus()` idiom (already used in `cull-flow.test.tsx`) would have caught this in
+  minutes — it just hadn't been applied here yet.
+  Separately, two full e2e runs flaked on `color-contrast` at route `/`, both times pointing at
+  the "Plate N" eyebrow span with a contrast ratio matching a mid-fade blend, not the settled
+  token value. The previous entry above had noted `.plate-in`'s opacity fade "apparently never
+  tripped" the goto-then-scan race — it just had, twice, under this session's parallel test
+  load. Fixed by making `.plate-in` transform-only (dropped the `opacity: 0` from its
+  keyframes), matching `.route-settle`'s and `.page-turn`'s already-documented reasoning.
+  Verified with 10 isolated stress-test runs + 2 full-suite runs, all clean (was previously
+  "verified" only by two passing runs, which is exactly how a ~1-in-16 race hides). Guardrail:
+  an animation that runs on every mount of an axe-scanned route needs proof across *many* runs,
+  not two — a rare race can pass a handful of checks by chance and still ship broken; when
+  something is asserted "safe in practice" without a mechanism (a structural exclusion, not
+  just "hasn't happened yet"), treat it as a checked mechanism you also need to fix, not a fact.
